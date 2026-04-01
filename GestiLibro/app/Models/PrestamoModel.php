@@ -14,13 +14,30 @@ class PrestamoModel extends BaseModel
     protected $observers = [
         \App\Observers\AuditObserver::class,
     ];
-    // 🔹 Obtener préstamos con info del usuario y libro
+
     public function conDetalles()
     {
         return $this->select('Prestamo.*, Usuario.nombre AS nombre_usuario, Libro.titulo AS titulo_libro')
                     ->join('Usuario', 'Usuario.id_usuario = Prestamo.id_usuario')
                     ->join('Libro', 'Libro.id_libro = Prestamo.id_libro')
                     ->orderBy('Prestamo.id_prestamo', 'DESC')
+                    ->findAll();
+    }
+
+    public function obtenerTodosConUsuarioYLibro()
+    {
+        return $this->select('Prestamo.*, Usuario.nombre as nombre_usuario, Usuario.apellido, Libro.titulo as titulo_libro')
+                    ->join('Usuario', 'Usuario.id_usuario = Prestamo.id_usuario')
+                    ->join('Libro', 'Libro.id_libro = Prestamo.id_libro')
+                    ->findAll();
+    }
+
+    public function obtenerPrestamosPorUsuario($idUsuario)
+    {
+        return $this->select('Prestamo.*, Usuario.nombre as nombre_usuario, Usuario.apellido, Libro.titulo as titulo_libro')
+                    ->join('Usuario', 'Usuario.id_usuario = Prestamo.id_usuario')
+                    ->join('Libro', 'Libro.id_libro = Prestamo.id_libro')
+                    ->where('Prestamo.id_usuario', $idUsuario)
                     ->findAll();
     }
 }

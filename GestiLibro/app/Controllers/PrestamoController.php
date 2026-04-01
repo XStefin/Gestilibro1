@@ -22,21 +22,44 @@ class PrestamoController extends BaseController
 
     public function index()
     {
-        $data['prestamos'] = $this->prestamoModel->conDetalles();
-        $data['librosDisponibles'] = $this->libroModel
-            ->where('disponibilidad', 'disponible')
-            ->findAll();
-        $data['user'] = AuthUser::getInstance();
+        $authUser = session('auth_user');
+
+        $idUsuario = $authUser['id_usuario'] ?? null;
+        $idRol = $authUser['id_rol'] ?? null;
+
+        if ($idRol == 1 || $idRol == 2) {
+            $data['prestamos'] = $this->prestamoModel->obtenerTodosConUsuarioYLibro();
+        } else {
+            $data['prestamos'] = $this->prestamoModel->obtenerPrestamosPorUsuario($idUsuario);
+        }
+
         return view('prestamos/index', $data);
     }
 
     public function create()
     {
-        $data['usuarios'] = $this->usuarioModel->findAll();
+        $authUser = session('auth_user');
+
+        $idUsuario = $authUser['id_usuario'] ?? null;
+        $idRol = $authUser['id_rol'] ?? null;
+
+        // Libros (esto lo dejas igual)
         $data['libros'] = $this->libroModel->findAll();
+
+        // 🔥 CONTROL DE USUARIOS
+        if ($idRol == 1 || $idRol == 2) {
+            // Admin o Bibliotecario → todos los usuarios
+            $data['usuarios'] = $this->usuarioModel->findAll();
+        } else {
+            // Estudiante → solo él mismo
+            $data['usuarios'] = [
+                $this->usuarioModel->find($idUsuario)
+            ];
+        }
+
         return view('prestamos/create', $data);
     }
-
+    
     public function store()
     {
         $this->prestamoModel->insert([
@@ -62,13 +85,29 @@ class PrestamoController extends BaseController
 
     public function update($id)
     {
+        $idUsuario = $this->request->getPost('id_usuario');
+        $idLibro = $this->request->getPost('id_libro');
+        $fechaPrestamo = $this->request->getPost('fecha_prestamo');
+        $fechaDevolucion = $this->request->getPost('fecha_devolucion');
+        $estado = $this->request->getPost('estado');
+
         $this->prestamoModel->update($id, [
-            'id_usuario' => $this->request->getPost('id_usuario'),
-            'id_libro' => $this->request->getPost('id_libro'),
-            'fecha_prestamo' => $this->request->getPost('fecha_prestamo'),
-            'fecha_devolucion' => $this->request->getPost('fecha_devolucion'),
-            'estado' => $this->request->getPost('estado')
+            'id_usuario' => $idUsuario,
+            'id_libro' => $idLibro,
+            'fecha_prestamo' => $fechaPrestamo,
+            'fecha_devolucion' => $fechaDevolucion,
+            'estado' => $estado
         ]);
+
+        if ($estado === 'devuelto') {
+            $this->libroModel->update($idLibro, [
+                'disponibilidad' => 'disponible'
+            ]);
+        } else {
+            $this->libroModel->update($idLibro, [
+                'disponibilidad' => 'prestado'
+            ]);
+        }
 
         return redirect()->to(site_url('prestamos'));
     }

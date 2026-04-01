@@ -3,6 +3,11 @@
 
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fa-solid fa-plus"></i> Añadir Libro</h2>
+        <?php if(session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger">
+                <?= session()->getFlashdata('error') ?>
+            </div>
+        <?php endif; ?>
 
     <form action="<?= site_url('libros/store') ?>" method="post">
         <div class="mb-3">
@@ -23,7 +28,7 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Año</label>
-                <input type="number" name="anio" class="form-control" min="0">
+                <input type="text" name="anio" class="form-control" maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="Ej: 2026" title="Ingrese un año válido de 4 dígitos">
             </div>
             <div class="col-md-6 mb-3">
                 <label class="form-label">Categoría</label>

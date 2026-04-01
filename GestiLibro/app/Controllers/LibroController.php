@@ -44,6 +44,24 @@ class LibroController extends BaseController
             'id_categoria' => $this->request->getPost('id_categoria'),
         ];
 
+        $anio = $this->request->getPost('anio');
+        $anioActual = (int) date('Y');
+        $anioMinimo = 1900;
+
+        if (!preg_match('/^\d{4}$/', $anio)) {
+            return redirect()->back()->withInput()->with('error', 'El año debe contener exactamente 4 dígitos.');
+        }
+
+        $anio = (int) $anio;
+
+        if ($anio > $anioActual) {
+            return redirect()->back()->withInput()->with('error', 'El año no puede ser mayor al año actual.');
+        }
+
+        if ($anio < $anioMinimo) {
+            return redirect()->back()->withInput()->with('error', 'El año no puede ser menor a ' . $anioMinimo . '.');
+        }
+        
         $this->libros->crear($data);
         return redirect()->to('/libros')->with('success', 'Libro agregado correctamente.');
     }
