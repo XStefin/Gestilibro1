@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\RolModel;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 
 class RolController extends BaseController
 {
@@ -26,12 +27,31 @@ class RolController extends BaseController
 
     public function store()
     {
-        $this->rolModel->insert([
-            'nombre' => $this->request->getPost('nombre')
-        ]);
-        return redirect()->to('/roles');
-    }
+        $nombre = trim($this->request->getPost('nombre'));
 
+        $rolExistente = $this->rolModel
+            ->where('nombre', $nombre)
+            ->first();
+
+        if ($rolExistente) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe un rol con ese nombre.');
+        }
+
+        try {
+            $this->rolModel->insert([
+                'nombre' => $nombre
+            ]);
+
+            return redirect()->to('/roles')
+                ->with('success', 'Rol creado correctamente.');
+        } catch (DatabaseException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe un rol con ese nombre.');
+        }
+    }
 
     public function edit($id)
     {
@@ -41,15 +61,38 @@ class RolController extends BaseController
 
     public function update($id)
     {
-        $this->rolModel->update($id, [
-        'nombre' => $this->request->getPost('nombre')
-    ]);
-        return redirect()->to('/roles');
+        $nombre = trim($this->request->getPost('nombre'));
+
+        $rolExistente = $this->rolModel
+            ->where('nombre', $nombre)
+            ->where('id !=', $id)
+            ->first();
+
+        if ($rolExistente) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe otro rol con ese nombre.');
+        }
+
+        try {
+            $this->rolModel->update($id, [
+                'nombre' => $nombre
+            ]);
+
+            return redirect()->to('/roles')
+                ->with('success', 'Rol actualizado correctamente.');
+        } catch (DatabaseException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe otro rol con ese nombre.');
+        }
     }
 
     public function delete($id)
     {
         $this->rolModel->delete($id);
-        return redirect()->to('/roles');
+
+        return redirect()->to('/roles')
+            ->with('success', 'Rol eliminado correctamente.');
     }
 }

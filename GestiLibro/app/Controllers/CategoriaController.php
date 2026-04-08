@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\CategoriaModel;
 use CodeIgniter\Controller;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use App\Libraries\AuthUser;
 
 class CategoriaController extends Controller
@@ -15,7 +16,7 @@ class CategoriaController extends Controller
         $this->categoriaModel = new CategoriaModel();
     }
 
-     public function index()
+    public function index()
     {
         $model = new CategoriaModel();
         $data['categorias'] = $model->findAll();
@@ -30,12 +31,38 @@ class CategoriaController extends Controller
 
     public function store()
     {
-        $this->categoriaModel->insert([
-            'nombre' => $this->request->getPost('nombre'),
-            'descripcion' => $this->request->getPost('descripcion'),
-        ]);
+        $nombre = trim($this->request->getPost('nombre'));
+        $descripcion = trim($this->request->getPost('descripcion'));
 
-        return redirect()->to('/categorias');
+        if (empty($nombre)) {
+            return redirect()->to(site_url('categorias/create'))
+                ->withInput()
+                ->with('warning', 'El nombre de la categoría es obligatorio.');
+        }
+
+        $categoriaExistente = $this->categoriaModel
+            ->where('nombre', $nombre)
+            ->first();
+
+        if ($categoriaExistente) {
+            return redirect()->to(site_url('categorias/create'))
+                ->withInput()
+                ->with('warning', 'Ya existe una categoría con ese nombre.');
+        }
+
+        try {
+            $this->categoriaModel->insert([
+                'nombre' => $nombre,
+                'descripcion' => $descripcion,
+            ]);
+
+            return redirect()->to('/categorias')
+                ->with('success', 'Categoría creada correctamente.');
+        } catch (DatabaseException $e) {
+            return redirect()->to(site_url('categorias/create'))
+                ->withInput()
+                ->with('warning', 'Ya existe una categoría con ese nombre.');
+        }
     }
 
     public function edit($id)
@@ -46,17 +73,46 @@ class CategoriaController extends Controller
 
     public function update($id)
     {
-        $this->categoriaModel->update($id, [
-            'nombre' => $this->request->getPost('nombre'),
-            'descripcion' => $this->request->getPost('descripcion'),
-        ]);
+        $nombre = trim($this->request->getPost('nombre'));
+        $descripcion = trim($this->request->getPost('descripcion'));
 
-        return redirect()->to('/categorias');
+        if (empty($nombre)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'El nombre de la categoría es obligatorio.');
+        }
+
+        $categoriaExistente = $this->categoriaModel
+            ->where('nombre', $nombre)
+            ->where('id_categoria !=', $id)
+            ->first();
+
+        if ($categoriaExistente) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe otra categoría con ese nombre.');
+        }
+
+        try {
+            $this->categoriaModel->update($id, [
+                'nombre' => $nombre,
+                'descripcion' => $descripcion,
+            ]);
+
+            return redirect()->to('/categorias')
+                ->with('success', 'Categoría actualizada correctamente.');
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('warning', 'Ya existe otra categoría con ese nombre.');
+        }
     }
 
     public function delete($id)
     {
         $this->categoriaModel->delete($id);
-        return redirect()->to('/categorias');
+
+        return redirect()->to('/categorias')
+            ->with('success', 'Categoría eliminada correctamente.');
     }
 }
