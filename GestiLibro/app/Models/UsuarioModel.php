@@ -22,4 +22,13 @@ class UsuarioModel extends BaseModel
                     ->orderBy('Usuario.id_usuario', 'DESC')
                     ->findAll();
     }
+    public function getUsuarioConRol($idUsuario)
+    {
+        return $this->db->table('Usuario u')
+            ->select('u.id_usuario, u.nombre, u.apellido, u.id_rol, r.nombre AS nombre_rol')
+            ->join('Rol r', 'r.id_rol = u.id_rol')
+            ->where('u.id_usuario', $idUsuario)
+            ->get()
+            ->getRowArray();
+    }
 }

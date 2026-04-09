@@ -16,7 +16,7 @@
     <h4 class="fw-bold mb-3"><i class="fa-solid fa-book me-2 "></i> Gestión de Libros</h4>
 
     <div class="mb-4">
-    <?php if ($categoryExist && $user1['id_rol']==1): ?>
+    <?php if ($categoryExist && $user1['id_rol']==1 or $categoryExist && $user1['id_rol']==2): ?>
         <a href="<?= site_url('libros/create') ?>" class="btn btn-success">
             <i class="fa-solid fa-book-medical me-2"></i> Nuevo Libro
         </a>
@@ -57,7 +57,7 @@
                 <th>Año</th>
                 <th>Categoría</th>
                 <th>Disponibilidad</th>
-                <?php if ($user1['id_rol']==1) : ?>
+                <?php if ($user1['id_rol']==1 or $user1['id_rol']==2) : ?>
                     <th>Acciones</th>
                 <?php endif ?>
             </tr>
@@ -81,7 +81,7 @@
                                 <span class="badge bg-warning text-dark">Prestado</span>
                             <?php endif; ?>
                         </td>
-                        <?php if ($user1['id_rol']==1) : ?>
+                        <?php if ($user1['id_rol']==1 or $user1['id_rol']==2) : ?>
                             <td>
                                 <a href="<?= site_url('libros/edit/' . $libro['id_libro']) ?>" class="btn btn-sm btn-info">
                                     <i class="fa-solid fa-pen-to-square"></i>

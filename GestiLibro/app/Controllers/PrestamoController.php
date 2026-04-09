@@ -43,15 +43,13 @@ class PrestamoController extends BaseController
         $idUsuario = $authUser['id_usuario'] ?? null;
         $idRol = $authUser['id_rol'] ?? null;
 
-        // Libros (esto lo dejas igual)
         $data['libros'] = $this->libroModel->findAll();
+        $data['usuarioActivo'] = $idUsuario;
+        $data['puedeCambiarUsuario'] = ($idRol == 1 || $idRol == 2);
 
-        // 🔥 CONTROL DE USUARIOS
-        if ($idRol == 1 || $idRol == 2) {
-            // Admin o Bibliotecario → todos los usuarios
+        if ($data['puedeCambiarUsuario']) {
             $data['usuarios'] = $this->usuarioModel->findAll();
         } else {
-            // Estudiante → solo él mismo
             $data['usuarios'] = [
                 $this->usuarioModel->find($idUsuario)
             ];
@@ -62,16 +60,47 @@ class PrestamoController extends BaseController
     
     public function store()
     {
-        $this->prestamoModel->insert([
-            'id_usuario' => $this->request->getPost('id_usuario'),
-            'id_libro' => $this->request->getPost('id_libro'),
-            'fecha_prestamo' => $this->request->getPost('fecha_prestamo') ?? date('Y-m-d'),
-            'fecha_devolucion' => $this->request->getPost('fecha_devolucion'),
-        ]);
-        $libro = $this->libroModel->getLibroConEstado($this->request->getPost('id_libro'));
-        $libro->prestar();
+        $idUsuario = $this->request->getPost('id_usuario');
+        $idLibro = $this->request->getPost('id_libro');
+        $fechaPrestamo = $this->request->getPost('fecha_prestamo') ?: date('Y-m-d');
+        $fechaDevolucion = $this->request->getPost('fecha_devolucion');
 
-        return redirect()->to(site_url('prestamos'));
+        if (empty($idUsuario) || empty($idLibro) || empty($fechaPrestamo)) {
+            return redirect()->to(site_url('prestamos/create'))
+                ->withInput()
+                ->with('warning', 'Todos los campos obligatorios deben estar completos.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transBegin();
+
+        try {
+            $libro = $this->libroModel->getLibroConEstado($idLibro);
+
+            if (!$libro) {
+                throw new \Exception('El libro seleccionado no existe.');
+            }
+
+            $libro->prestar();
+
+            $this->prestamoModel->insert([
+                'id_usuario' => $idUsuario,
+                'id_libro' => $idLibro,
+                'fecha_prestamo' => $fechaPrestamo,
+                'fecha_devolucion' => $fechaDevolucion,
+            ]);
+
+            $db->transCommit();
+
+            return redirect()->to(site_url('prestamos'))
+                ->with('success', 'Préstamo registrado correctamente.');
+        } catch (\Throwable $e) {
+            $db->transRollback();
+
+            return redirect()->to(site_url('prestamos/create'))
+                ->withInput()
+                ->with('warning', $e->getMessage());
+        }
     }
 
     public function edit($id)
