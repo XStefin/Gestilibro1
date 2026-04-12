@@ -2,23 +2,29 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
 class LibroModel extends BaseModel
 {
     protected $table = 'Libro';
     protected $primaryKey = 'id_libro';
-    protected $allowedFields = ['titulo', 'autor', 'editorial', 'anio', 'disponibilidad', 'id_categoria'];
+    protected $allowedFields = [
+        'titulo',
+        'autor',
+        'editorial',
+        'anio',
+        'categoria',
+        'cantidad',
+        'disponibilidad'
+    ];
     protected $returnType = 'array';
     protected $useTimestamps = false;
-    protected $observers = [
-        \App\Observers\AuditObserver::class,
-    ];
+
+    
+
     public function getLibroConEstado($id)
     {
         $libro = $this->find($id);
         if (!$libro) return null;
-        // Determina el estado actual del libro
+
         switch ($libro['disponibilidad']) {
             case 'prestado':
                 $state = new \App\Models\States\PrestadoState();
@@ -30,20 +36,30 @@ class LibroModel extends BaseModel
                 $state = new \App\Models\States\DisponibleState();
         }
 
-        // Retorna un objeto que combina el modelo con su estado
         return new \App\Models\States\LibroContext($this, $libro, $state);
     }
-    
-    // Obtener libros con su categoría
-    public function conCategoria($disponibilidad = null)
+
+    public function obtenerLibros($disponibilidad = null)
     {
-        $query = $this->select('Libro.*, Categoria.nombre AS nombre_categoria')
-                      ->join('Categoria', 'Categoria.id_categoria = Libro.id_categoria', 'left');
+        $query = $this->select('*');
 
         if (!empty($disponibilidad)) {
-            $query->where('Libro.disponibilidad', $disponibilidad);
+            $query->where('disponibilidad', $disponibilidad);
         }
 
         return $query->findAll();
+    }
+
+    public function obtenerCopiasDisponibles(int $idLibro, PrestamoModel $prestamoModel): int
+    {
+        $libro = $this->find($idLibro);
+
+        if (!$libro) {
+            return 0;
+        }
+
+        $prestamosActivos = $prestamoModel->contarPrestamosActivosPorLibro($idLibro);
+
+        return max(0, ((int) $libro['cantidad']) - $prestamosActivos);
     }
 }

@@ -4,6 +4,12 @@
 <div class="container mt-4">
     <h2 class="mb-4"><i class="fa-solid fa-pen-to-square"></i> Editar Libro</h2>
 
+    <?php if(session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger">
+            <?= session()->getFlashdata('error') ?>
+        </div>
+    <?php endif; ?>
+
     <form action="<?= site_url('libros/update/' . $libro['id_libro']) ?>" method="post">
         <div class="mb-3">
             <label class="form-label">Título</label>
@@ -23,26 +29,46 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Año</label>
-                <input type="number" name="anio" class="form-control" value="<?= esc($libro['anio']) ?>">
+                <input 
+                    type="text" 
+                    name="anio" 
+                    class="form-control" 
+                    maxlength="4" 
+                    pattern="\d{4}" 
+                    inputmode="numeric"
+                    value="<?= esc($libro['anio']) ?>"
+                    required>
             </div>
+
             <div class="col-md-6 mb-3">
                 <label class="form-label">Categoría</label>
-                <select name="id_categoria" class="form-select">
-                    <?php foreach ($categorias as $c): ?>
-                        <option value="<?= $c['id_categoria'] ?>" 
-                            <?= $libro['id_categoria'] == $c['id_categoria'] ? 'selected' : '' ?>>
-                            <?= esc($c['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <input 
+                    type="text" 
+                    name="categoria" 
+                    class="form-control" 
+                    value="<?= esc($libro['categoria']) ?>" 
+                    required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Cantidad</label>
+                <input 
+                    type="number" 
+                    name="cantidad" 
+                    class="form-control" 
+                    min="1" 
+                    step="1"
+                    value="<?= esc($libro['cantidad']) ?>" 
+                    required>
             </div>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Disponibilidad</label>
             <select name="disponibilidad" class="form-select">
-                <option value="1" <?= $libro['disponibilidad'] ? 'selected' : '' ?>>Disponible</option>
-                <option value="0" <?= !$libro['disponibilidad'] ? 'selected' : '' ?>>No disponible</option>
+                <option value="disponible" <?= $libro['disponibilidad'] === 'disponible' ? 'selected' : '' ?>>Disponible</option>
+                <option value="no_disponible" <?= $libro['disponibilidad'] === 'no_disponible' ? 'selected' : '' ?>>No disponible</option>
+                <option value="prestado" <?= $libro['disponibilidad'] === 'prestado' ? 'selected' : '' ?>>Prestado</option>
             </select>
         </div>
 

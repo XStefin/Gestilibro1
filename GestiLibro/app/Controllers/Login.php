@@ -21,51 +21,28 @@ class Login extends BaseController
         $user = $userModel->where('username', $username)->first();
 
         if ($user && password_verify($password, $user['contrasena'])) {
-            // Singleton opcional para la petición actual
+            if (!(bool) $user['active']) {
+                return redirect()->back()->with('error', 'Usuario inactivo');
+            }
+
             $auth = AuthUser::getInstance();
             $auth->setUser($user);
 
-            // Auditoría
-            $observer = new \App\Observers\AuditObserver();
-            $observer->onUserLoggedIn($user);
+            session()->set('isLoggedIn', true);
 
-            // Sesión persistente entre páginas
-            session()->set([
-                'isLoggedIn' => true,
-                'authUser' => [
-                    'id_usuario' => $user['id_usuario'] ?? null,
-                    'nombreCompleto' => $user['nombreCompleto'] ?? '',
-                    'username' => $user['username'] ?? '',
-                    'id_rol' => $user['id_rol'] ?? null
-                ]
-            ]);
-
-            switch ($user['id_rol']) {
-                case 1: // Admin
-                    return redirect()->to('/dashboard');
-
-                case 2:
-                    return redirect()->to('/libros');
-
-                default:
-                    return redirect()->to('/libros');
+            if (strtolower($user['rol']) === 'administrador') {
+                return redirect()->to('/dashboard');
             }
-        } else {
-            return redirect()->back()->with('error', 'Credenciales incorrectas');
+
+            return redirect()->to('/libros');
         }
+
+        return redirect()->back()->with('error', 'Credenciales incorrectas');
     }
 
     public function logout()
     {
-        $user = session()->get('authUser');
-
-        if ($user) {
-            $observer = new \App\Observers\AuditObserver();
-            $observer->onUserLoggedIn($user, true);
-        }
-
         session()->destroy();
-
         return redirect()->to('/login');
     }
 }

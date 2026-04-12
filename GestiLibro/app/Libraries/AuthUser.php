@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Libraries;
 
 use CodeIgniter\Session\SessionInterface;
@@ -19,20 +20,29 @@ class AuthUser
     public static function getInstance(?SessionInterface $session = null): AuthUser
     {
         $session = $session ?? \Config\Services::session();
+
         if (self::$instance === null) {
             self::$instance = new self($session);
         }
+
         return self::$instance;
     }
 
-    public function setUser(array $data)
+    public function setUser(array $data): void
     {
+        $nombre = $data['nombre'] ?? '';
+        $apellido = $data['apellido'] ?? '';
+
         $this->userData = [
             'id_usuario' => $data['id_usuario'] ?? null,
             'correo' => $data['correo'] ?? null,
-            'id_rol' => $data['id_rol'] ?? [],
-            'nombreCompleto' => $data['nombre'].' '.$data['apellido'] ?? null,
+            'username' => $data['username'] ?? null,
+            'rol' => $data['rol'] ?? null,
+            'pin' => $data['pin'] ?? null,
+            'active' => $data['active'] ?? 0,
+            'nombreCompleto' => trim($nombre . ' ' . $apellido),
         ];
+
         $this->session->set($this->key, $this->userData);
     }
 
@@ -43,10 +53,10 @@ class AuthUser
 
     public function isLoggedIn(): bool
     {
-        return !empty($this->userData) && !empty($this->userData['id']);
+        return !empty($this->userData) && !empty($this->userData['id_usuario']);
     }
 
-    public function logout()
+    public function logout(): void
     {
         $this->userData = null;
         $this->session->remove($this->key);

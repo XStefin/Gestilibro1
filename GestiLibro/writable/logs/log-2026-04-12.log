@@ -1,0 +1,401 @@
+DEBUG - 2026-04-12 00:44:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:44:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-04-12 00:44:38 --> ErrorException: Undefined array key "nombre"
+[Method: GET, Route: prestamos/create]
+in APPPATH\Views\prestamos\create.php on line 49.
+ 1 APPPATH\Views\prestamos\create.php(49): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined array key "nombre"', 'C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\app\\Views\\prestamos\\create.php', 49)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\app\\Views\\prestamos\\create.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('prestamos/create', [], true)
+ 5 APPPATH\Controllers\PrestamoController.php(64): view('prestamos/create', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\PrestamoController->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+DEBUG - 2026-04-12 00:51:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:51:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 00:52:11 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(79): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 00:52:11 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 00:52:11 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(87): CodeIgniter\Model->update('1', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 00:52:11 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 00:52:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:52:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:53:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 00:53:33 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(45): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 00:53:33 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 00:53:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:53:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:53:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 00:53:46 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(82): CodeIgniter\Model->update('4', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->update('4')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 00:53:46 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 00:53:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:53:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:53:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 00:54:29 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:27:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:29:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:29:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:29:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:30:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 01:30:48 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(103): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 01:30:48 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 01:30:48 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(114): CodeIgniter\Model->update(1, Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 01:30:48 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 01:30:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:30:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:30:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:30:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:30:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:23 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:26 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 01:31:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:17 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 02:36:27 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(153): CodeIgniter\Model->update('2', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:36:27 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 02:36:27 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(167): CodeIgniter\Model->update(1, Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:36:27 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 02:36:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:30 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 02:36:40 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(153): CodeIgniter\Model->update('2', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:36:40 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 02:36:40 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(167): CodeIgniter\Model->update(1, Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:36:40 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 02:36:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:36:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:37:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:37:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 02:39:47 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(153): CodeIgniter\Model->update('2', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:39:47 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 02:39:47 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(167): CodeIgniter\Model->update(1, Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('2')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:39:47 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 02:39:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-12 02:39:52 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(153): CodeIgniter\Model->update('1', Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('1')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:39:52 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+ERROR - 2026-04-12 02:39:52 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('update', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(81): App\Models\BaseModel->notify('update', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterUpdate(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1029): CodeIgniter\BaseModel->trigger('afterUpdate', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(860): CodeIgniter\BaseModel->update(Array, Array)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\PrestamoController.php(167): CodeIgniter\Model->update(1, Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\PrestamoController->update('1')
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-12 02:39:52 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-12 02:39:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:39:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:40:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:40:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:42:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-12 02:42:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

@@ -1,17 +1,23 @@
 <?php
-    $authUser = session()->get('authUser');
+    $authUser = session()->get('auth_user');
 
     $usuarioBD = null;
     $nombreCompleto = 'Usuario';
     $nombreRol = 'Sin rol';
+    $rol = '';
 
     if ($authUser && !empty($authUser['id_usuario'])) {
         $usuarioModel = new \App\Models\UsuarioModel();
-        $usuarioBD = $usuarioModel->getUsuarioConRol($authUser['id_usuario']);
+        $usuarioBD = $usuarioModel->find($authUser['id_usuario']);
 
         if ($usuarioBD) {
             $nombreCompleto = trim(($usuarioBD['nombre'] ?? '') . ' ' . ($usuarioBD['apellido'] ?? ''));
-            $nombreRol = $usuarioBD['nombre_rol'] ?? 'Sin rol';
+            $nombreRol = $usuarioBD['rol'] ?? 'Sin rol';
+            $rol = strtolower($usuarioBD['rol'] ?? '');
+        } else {
+            $nombreCompleto = $authUser['nombreCompleto'] ?? 'Usuario';
+            $nombreRol = $authUser['rol'] ?? 'Sin rol';
+            $rol = strtolower($authUser['rol'] ?? '');
         }
     }
 ?>
@@ -31,7 +37,7 @@
         </div>
 
         <ul class="nav flex-column">
-            <?php if ($usuarioBD && $usuarioBD['id_rol'] == 1): ?>
+            <?php if ($rol === 'administrador'): ?>
                 <li class="nav-item mb-2">
                     <a href="<?= base_url('dashboard') ?>" class="nav-link d-flex align-items-center">
                         <i class="fa-solid fa-house me-2"></i> <span>Home</span>
@@ -43,12 +49,6 @@
                         <i class="fa-solid fa-user me-2"></i> <span>Usuarios</span>
                     </a>
                 </li>
-
-                <li class="nav-item mb-2">
-                    <a href="<?= base_url('roles') ?>" class="nav-link d-flex align-items-center">
-                        <i class="fa-solid fa-user-gear me-2"></i> <span>Roles</span>
-                    </a>
-                </li>
             <?php endif; ?>
 
             <li class="nav-item mb-2">
@@ -56,14 +56,6 @@
                     <i class="fa-solid fa-book-open me-2"></i> <span>Libros</span>
                 </a>
             </li>
-
-            <?php if ($usuarioBD && $usuarioBD['id_rol'] == 1): ?>
-                <li class="nav-item mb-2">
-                    <a href="<?= base_url('categorias') ?>" class="nav-link d-flex align-items-center">
-                        <i class="fa-solid fa-tags me-2"></i> <span>Categorías</span>
-                    </a>
-                </li>
-            <?php endif; ?>
 
             <li class="nav-item mb-2">
                 <a href="<?= base_url('prestamos') ?>" class="nav-link d-flex align-items-center">

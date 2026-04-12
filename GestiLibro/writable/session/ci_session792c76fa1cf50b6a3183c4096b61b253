@@ -1,0 +1,1 @@
+__ci_last_regenerate|i:1775001056;_ci_previous_url|s:45:"http://localhost:8080/index.php/libros/create";auth_user|a:4:{s:10:"id_usuario";s:1:"1";s:6:"correo";s:16:"admin@local.test";s:6:"id_rol";s:1:"1";s:14:"nombreCompleto";s:13:"Admin Sistema";}isLoggedIn|b:1;authUser|a:4:{s:10:"id_usuario";s:1:"1";s:14:"nombreCompleto";s:0:"";s:8:"username";s:5:"admin";s:6:"id_rol";s:1:"1";}

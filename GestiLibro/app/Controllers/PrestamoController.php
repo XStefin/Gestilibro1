@@ -22,91 +22,115 @@ class PrestamoController extends BaseController
 
     public function index()
     {
-        $authUser = session('auth_user');
+        $authUser = AuthUser::getInstance()->getUser();
+        $rol = strtolower($authUser['rol'] ?? '');
 
-        $idUsuario = $authUser['id_usuario'] ?? null;
-        $idRol = $authUser['id_rol'] ?? null;
-
-        if ($idRol == 1 || $idRol == 2) {
+        if (in_array($rol, ['administrador', 'bibliotecario'])) {
             $data['prestamos'] = $this->prestamoModel->obtenerTodosConUsuarioYLibro();
         } else {
-            $data['prestamos'] = $this->prestamoModel->obtenerPrestamosPorUsuario($idUsuario);
+            $data['prestamos'] = $this->prestamoModel->obtenerPrestamosPorUsuario($authUser['id_usuario']);
         }
+
+        $data['librosDisponibles'] = $this->libroModel
+            ->where('disponibilidad', 'disponible')
+            ->findAll();
+
+        $data['user'] = AuthUser::getInstance();
 
         return view('prestamos/index', $data);
     }
 
     public function create()
     {
-        $authUser = session('auth_user');
+        $authUser = AuthUser::getInstance()->getUser();
+        $rol = strtolower($authUser['rol'] ?? '');
 
-        $idUsuario = $authUser['id_usuario'] ?? null;
-        $idRol = $authUser['id_rol'] ?? null;
+        $puedeCambiarUsuario = in_array($rol, ['administrador', 'bibliotecario']);
 
-        $data['libros'] = $this->libroModel->findAll();
-        $data['usuarioActivo'] = $idUsuario;
-        $data['puedeCambiarUsuario'] = ($idRol == 1 || $idRol == 2);
-
-        if ($data['puedeCambiarUsuario']) {
-            $data['usuarios'] = $this->usuarioModel->findAll();
+        if ($puedeCambiarUsuario) {
+            $data['usuarios'] = $this->usuarioModel->where('active', 1)->findAll();
+            $data['usuarioActivo'] = old('id_usuario');
         } else {
-            $data['usuarios'] = [
-                $this->usuarioModel->find($idUsuario)
-            ];
+            $usuarioBD = $this->usuarioModel->find($authUser['id_usuario']);
+            $data['usuarios'] = [$usuarioBD];
+            $data['usuarioActivo'] = $authUser['id_usuario'];
         }
+
+        $data['puedeCambiarUsuario'] = $puedeCambiarUsuario;
+
+        $todosLosLibros = $this->libroModel->findAll();
+        $librosDisponibles = [];
+
+        foreach ($todosLosLibros as $libro) {
+            $prestamosActivos = $this->prestamoModel->contarPrestamosActivosPorLibro((int) $libro['id_libro']);
+            $copiasDisponibles = (int) $libro['cantidad'] - $prestamosActivos;
+
+            if ($copiasDisponibles > 0) {
+                $libro['copias_disponibles'] = $copiasDisponibles;
+                $librosDisponibles[] = $libro;
+            }
+        }
+
+        $data['libros'] = $librosDisponibles;
 
         return view('prestamos/create', $data);
     }
     
     public function store()
     {
-        $idUsuario = $this->request->getPost('id_usuario');
-        $idLibro = $this->request->getPost('id_libro');
-        $fechaPrestamo = $this->request->getPost('fecha_prestamo') ?: date('Y-m-d');
-        $fechaDevolucion = $this->request->getPost('fecha_devolucion');
+        $authUser = AuthUser::getInstance()->getUser();
+        $rol = strtolower($authUser['rol'] ?? '');
 
-        if (empty($idUsuario) || empty($idLibro) || empty($fechaPrestamo)) {
-            return redirect()->to(site_url('prestamos/create'))
-                ->withInput()
-                ->with('warning', 'Todos los campos obligatorios deben estar completos.');
+        $idUsuario = in_array($rol, ['administrador', 'bibliotecario'])
+            ? $this->request->getPost('id_usuario')
+            : $authUser['id_usuario'];
+
+        $idLibro = (int) $this->request->getPost('id_libro');
+
+        $libro = $this->libroModel->find($idLibro);
+
+        if (!$libro) {
+            return redirect()->back()->withInput()->with('error', 'El libro seleccionado no existe.');
         }
 
-        $db = \Config\Database::connect();
-        $db->transBegin();
+        $prestamosActivos = $this->prestamoModel->contarPrestamosActivosPorLibro($idLibro);
+        $copiasDisponibles = (int) $libro['cantidad'] - $prestamosActivos;
 
-        try {
-            $libro = $this->libroModel->getLibroConEstado($idLibro);
-
-            if (!$libro) {
-                throw new \Exception('El libro seleccionado no existe.');
-            }
-
-            $libro->prestar();
-
-            $this->prestamoModel->insert([
-                'id_usuario' => $idUsuario,
-                'id_libro' => $idLibro,
-                'fecha_prestamo' => $fechaPrestamo,
-                'fecha_devolucion' => $fechaDevolucion,
-            ]);
-
-            $db->transCommit();
-
-            return redirect()->to(site_url('prestamos'))
-                ->with('success', 'Préstamo registrado correctamente.');
-        } catch (\Throwable $e) {
-            $db->transRollback();
-
-            return redirect()->to(site_url('prestamos/create'))
-                ->withInput()
-                ->with('warning', $e->getMessage());
+        if ($copiasDisponibles <= 0) {
+            return redirect()->back()->withInput()->with('error', 'No hay copias disponibles para préstamo.');
         }
+
+        $this->prestamoModel->insert([
+            'id_usuario' => $idUsuario,
+            'id_libro' => $idLibro,
+            'fecha_prestamo' => $this->request->getPost('fecha_prestamo') ?? date('Y-m-d'),
+            'fecha_devolucion' => $this->request->getPost('fecha_devolucion'),
+            'estado' => 'prestado'
+        ]);
+
+        $prestamosActivosActualizados = $this->prestamoModel->contarPrestamosActivosPorLibro($idLibro);
+        $copiasDisponiblesActualizadas = (int) $libro['cantidad'] - $prestamosActivosActualizados;
+
+        $this->libroModel->update($idLibro, [
+            'disponibilidad' => $copiasDisponiblesActualizadas > 0 ? 'disponible' : 'no_disponible'
+        ]);
+
+        return redirect()->to(site_url('prestamos'))->with('success', 'Préstamo registrado correctamente.');
     }
 
     public function edit($id)
     {
+        $authUser = AuthUser::getInstance()->getUser();
+        $rol = strtolower($authUser['rol'] ?? '');
+
         $data['prestamo'] = $this->prestamoModel->find($id);
-        $data['usuarios'] = $this->usuarioModel->findAll();
+
+        if (in_array($rol, ['administrador', 'bibliotecario'])) {
+            $data['usuarios'] = $this->usuarioModel->where('active', 1)->findAll();
+        } else {
+            $data['usuarios'] = [$authUser];
+        }
+
         $data['libros'] = $this->libroModel->findAll();
 
         return view('prestamos/edit', $data);
@@ -114,8 +138,14 @@ class PrestamoController extends BaseController
 
     public function update($id)
     {
-        $idUsuario = $this->request->getPost('id_usuario');
-        $idLibro = $this->request->getPost('id_libro');
+        $authUser = AuthUser::getInstance()->getUser();
+        $rol = strtolower($authUser['rol'] ?? '');
+
+        $idUsuario = in_array($rol, ['administrador', 'bibliotecario'])
+            ? $this->request->getPost('id_usuario')
+            : $authUser['id_usuario'];
+
+        $idLibro = (int) $this->request->getPost('id_libro');
         $fechaPrestamo = $this->request->getPost('fecha_prestamo');
         $fechaDevolucion = $this->request->getPost('fecha_devolucion');
         $estado = $this->request->getPost('estado');
@@ -128,17 +158,18 @@ class PrestamoController extends BaseController
             'estado' => $estado
         ]);
 
-        if ($estado === 'devuelto') {
+        $libro = $this->libroModel->find($idLibro);
+
+        if ($libro) {
+            $prestamosActivos = $this->prestamoModel->contarPrestamosActivosPorLibro($idLibro);
+            $copiasDisponibles = (int) $libro['cantidad'] - $prestamosActivos;
+
             $this->libroModel->update($idLibro, [
-                'disponibilidad' => 'disponible'
-            ]);
-        } else {
-            $this->libroModel->update($idLibro, [
-                'disponibilidad' => 'prestado'
+                'disponibilidad' => $copiasDisponibles > 0 ? 'disponible' : 'no_disponible'
             ]);
         }
 
-        return redirect()->to(site_url('prestamos'));
+        return redirect()->to(site_url('prestamos'))->with('success', 'Préstamo actualizado correctamente.');
     }
 
     public function delete($id)

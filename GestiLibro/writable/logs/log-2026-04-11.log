@@ -1,0 +1,362 @@
+DEBUG - 2026-04-11 22:50:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:51:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 22:51:05 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn(Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\Login->auth()
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#13 {main}
+CRITICAL - 2026-04-11 22:51:05 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'biblioteca_db.auditoria' doesn't exist
+[Method: POST, Route: login/auth]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 2 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 3 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+10 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:51:05 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'biblioteca_db.auditoria' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:51:05\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:51:05\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 4 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 5 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:51:05 --> [Caused by] mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:51:05\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:51:05\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:51:05\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 5 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 6 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+13 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+DEBUG - 2026-04-11 22:55:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:55:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 22:55:48 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn(Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\Login->auth()
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#13 {main}
+CRITICAL - 2026-04-11 22:55:48 --> CodeIgniter\Database\Exceptions\DatabaseException: Table 'biblioteca_db.auditoria' doesn't exist
+[Method: POST, Route: login/auth]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 2 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 3 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+10 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:55:48 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Table 'biblioteca_db.auditoria' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:55:48\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:55:48\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 4 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 5 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:55:48 --> [Caused by] mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:55:48\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:55:48\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (\'login\', \'Login\', \'1\', \'2026-04-11 22:55:48\', \'{\\"id_usuario\\":\\"1\\",\\"nombre\\":\\"Admin\\",\\"apellido\\":\\"Sistema\\",\\"correo\\":\\"admin@local.test\\",\\"username\\":\\"admin\\",\\"contrasena\\":\\"$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC\\\\/.og\\\\/at2.uheWG\\\\/igi\\",\\"rol\\":\\"Administrador\\",\\"pin\\":\\"1234\\",\\"active\\":\\"1\\"}\')')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `auditoria` (`accion`, `entidad`, `user_id`, `fecha`, `detalle`) VALUES (:accion:, :entidad:, :user_id:, :fecha:, :detalle:)', [...], false)
+ 5 APPPATH\Observers\AuditObserver.php(31): CodeIgniter\Database\BaseBuilder->insert([...])
+ 6 APPPATH\Controllers\Login.php(32): App\Observers\AuditObserver::onUserLoggedIn([...])
+ 7 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\Login->auth()
+ 8 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\Login))
+ 9 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+10 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+11 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+12 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+13 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+DEBUG - 2026-04-11 22:56:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:56:36 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:56:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:56:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:56:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:56:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:57:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 22:57:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 22:57:38 --> mysqli_sql_exception: Duplicate entry '1234' for key 'UQ_Usuario_pin' in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `Us...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Us...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Us...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Us...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#15 {main}
+CRITICAL - 2026-04-11 22:57:38 --> CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+[Method: POST, Route: usuarios/store]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:57:38 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$fuE4l/q9yu9tSmjofyII0On8FZlge1eySNAKSyJXyVNZY35TSgWje\', \'Bibliotecario\', \'1234\', 1)')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$fuE4l/q9yu9tSmjofyII0On8FZlge1eySNAKSyJXyVNZY35TSgWje\', \'Bibliotecario\', \'1234\', 1)')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+14 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:57:38 --> [Caused by] mysqli_sql_exception: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$fuE4l/q9yu9tSmjofyII0On8FZlge1eySNAKSyJXyVNZY35TSgWje\', \'Bibliotecario\', \'1234\', 1)', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$fuE4l/q9yu9tSmjofyII0On8FZlge1eySNAKSyJXyVNZY35TSgWje\', \'Bibliotecario\', \'1234\', 1)')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$fuE4l/q9yu9tSmjofyII0On8FZlge1eySNAKSyJXyVNZY35TSgWje\', \'Bibliotecario\', \'1234\', 1)')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+15 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+DEBUG - 2026-04-11 22:57:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 22:57:53 --> mysqli_sql_exception: Duplicate entry '1234' for key 'UQ_Usuario_pin' in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `Us...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Us...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Us...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Us...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(838): CodeIgniter\Model->doInsert(Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#15 {main}
+CRITICAL - 2026-04-11 22:57:53 --> CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+[Method: POST, Route: usuarios/store]
+in SYSTEMPATH\Database\BaseConnection.php on line 684.
+ 1 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 2 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 4 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 5 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:57:53 --> [Caused by] CodeIgniter\Database\Exceptions\DatabaseException: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 332.
+ 1 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$wpl2WpX//yRziRwdlNDW0.tHDHDiUEq9A5TkzS5FEtnEdfApjBRou\', \'Bibliotecario\', \'1234\', 1)')
+ 2 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$wpl2WpX//yRziRwdlNDW0.tHDHDiUEq9A5TkzS5FEtnEdfApjBRou\', \'Bibliotecario\', \'1234\', 1)')
+ 3 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 4 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 5 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 6 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 7 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 8 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+ 9 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+10 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+11 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+12 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+13 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+14 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+CRITICAL - 2026-04-11 22:57:53 --> [Caused by] mysqli_sql_exception: Duplicate entry '1234' for key 'UQ_Usuario_pin'
+in SYSTEMPATH\Database\MySQLi\Connection.php on line 327.
+ 1 SYSTEMPATH\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$wpl2WpX//yRziRwdlNDW0.tHDHDiUEq9A5TkzS5FEtnEdfApjBRou\', \'Bibliotecario\', \'1234\', 1)', 0)
+ 2 SYSTEMPATH\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$wpl2WpX//yRziRwdlNDW0.tHDHDiUEq9A5TkzS5FEtnEdfApjBRou\', \'Bibliotecario\', \'1234\', 1)')
+ 3 SYSTEMPATH\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (\'Pawmo\', \'Pawpawmo\', \'Pawmo@DiosKamiGod.com\', \'Pawmo\', \'$2y$10$wpl2WpX//yRziRwdlNDW0.tHDHDiUEq9A5TkzS5FEtnEdfApjBRou\', \'Bibliotecario\', \'1234\', 1)')
+ 4 SYSTEMPATH\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `Usuario` (`nombre`, `apellido`, `correo`, `username`, `contrasena`, `rol`, `pin`, `active`) VALUES (:nombre:, :apellido:, :correo:, :username:, :contrasena:, :rol:, :pin:, :active:)', [...], false)
+ 5 SYSTEMPATH\Model.php(394): CodeIgniter\Database\BaseBuilder->insert()
+ 6 SYSTEMPATH\BaseModel.php(838): CodeIgniter\Model->doInsert([...])
+ 7 SYSTEMPATH\Model.php(797): CodeIgniter\BaseModel->insert([...], true)
+ 8 APPPATH\Controllers\UsuarioController.php(29): CodeIgniter\Model->insert([...])
+ 9 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+10 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+11 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+12 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+13 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+14 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+15 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')
+DEBUG - 2026-04-11 23:07:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:07:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:07:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:13:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 23:13:14 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(45): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-11 23:13:14 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-11 23:13:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:13:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:13:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:13:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 23:13:48 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Repositories\LibroRepository.php(33): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\LibroController.php(61): App\Repositories\LibroRepository->crear(Array)
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\LibroController->store()
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\LibroController))
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#18 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#19 {main}
+ERROR - 2026-04-11 23:13:48 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-11 23:13:48 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:13:56 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-11 23:14:33 --> mysqli_sql_exception: Table 'biblioteca_db.auditoria' doesn't exist in C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `au...', 0)
+#1 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `au...')
+#2 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `au...')
+#3 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Database\BaseBuilder.php(2345): CodeIgniter\Database\BaseConnection->query('INSERT INTO `au...', Array, false)
+#4 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Observers\AuditObserver.php(12): CodeIgniter\Database\BaseBuilder->insert(Array)
+#5 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(48): App\Observers\AuditObserver->handle('insert', Array)
+#6 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Models\BaseModel.php(67): App\Models\BaseModel->notify('insert', Array)
+#7 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(1691): App\Models\BaseModel->notifyAfterInsert(Array)
+#8 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\BaseModel.php(848): CodeIgniter\BaseModel->trigger('afterInsert', Array)
+#9 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Model.php(797): CodeIgniter\BaseModel->insert(Array, true)
+#10 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\app\Controllers\UsuarioController.php(45): CodeIgniter\Model->insert(Array)
+#11 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(933): App\Controllers\UsuarioController->store()
+#12 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\UsuarioController))
+#13 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(NULL, Object(Config\Cache), false)
+#14 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(363): CodeIgniter\CodeIgniter->run()
+#15 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+#16 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\public\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+#17 C:\xampp\htdocs\GestiLibro\GestiLibro\GestiLibro\system\rewrite.php(44): require_once('C:\\xampp\\htdocs...')
+#18 {main}
+ERROR - 2026-04-11 23:14:33 --> Observer App\Observers\AuditObserver falló: Table 'biblioteca_db.auditoria' doesn't exist
+DEBUG - 2026-04-11 23:14:33 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:47 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-11 23:14:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-04-11 23:14:55 --> ErrorException: Undefined variable $puedeCambiarUsuario
+[Method: GET, Route: prestamos/create]
+in APPPATH\Views\prestamos\create.php on line 33.
+ 1 APPPATH\Views\prestamos\create.php(33): CodeIgniter\Debug\Exceptions->errorHandler(2, 'Undefined variable $puedeCambiarUsuario', 'C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\app\\Views\\prestamos\\create.php', 33)
+ 2 SYSTEMPATH\View\View.php(226): include('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\app\\Views\\prestamos\\create.php')
+ 3 SYSTEMPATH\View\View.php(229): CodeIgniter\View\View->CodeIgniter\View\{closure}()
+ 4 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('prestamos/create', [], true)
+ 5 APPPATH\Controllers\PrestamoController.php(58): view('prestamos/create', [...])
+ 6 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\PrestamoController->create()
+ 7 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\PrestamoController))
+ 8 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 9 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+10 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+11 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+12 SYSTEMPATH\rewrite.php(44): require_once('C:\\xampp\\htdocs\\GestiLibro\\GestiLibro\\GestiLibro\\public\\index.php')

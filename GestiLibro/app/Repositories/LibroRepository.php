@@ -13,9 +13,9 @@ class LibroRepository
         $this->model = new LibroModel();
     }
 
-    public function obtenerTodosConCategoria($disponibilidad): array
+    public function obtenerTodos($disponibilidad = null): array
     {
-        return $this->model->conCategoria($disponibilidad);
+        return $this->model->obtenerLibros($disponibilidad);
     }
 
     public function obtenerPorId(int $id): ?array
@@ -30,7 +30,7 @@ class LibroRepository
 
     public function crear(array $data): bool
     {
-        return $this->model->insert($data);
+        return (bool) $this->model->insert($data);
     }
 
     public function actualizar(int $id, array $data): bool
@@ -41,9 +41,10 @@ class LibroRepository
     public function eliminarLogico(int $id): bool
     {
         $libro = $this->model->getLibroConEstado($id);
-        if (!$libro) return false;
+        if (!$libro) {
+            return false;
+        }
 
-        // Esto usa tu patrón State internamente
         $libro->eliminar();
         return true;
     }

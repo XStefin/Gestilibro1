@@ -18,6 +18,12 @@
         </div>
     <?php endif; ?>
 
+    <?php if (empty($libros)): ?>
+        <div class="alert alert-warning">
+            No hay libros disponibles para préstamo.
+        </div>
+    <?php endif; ?>
+
     <form action="<?= site_url('prestamos/store') ?>" method="post">
         <?= csrf_field() ?>
 
@@ -54,7 +60,7 @@
                 <?php foreach ($libros as $l): ?>
                     <option value="<?= $l['id_libro'] ?>"
                         <?= old('id_libro') == $l['id_libro'] ? 'selected' : '' ?>>
-                        <?= esc($l['titulo']) ?>
+                        <?= esc($l['titulo']) ?> (Disponibles: <?= esc($l['copias_disponibles']) ?>)
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -73,8 +79,9 @@
                 <input type="date"
                        name="fecha_prestamo"
                        min="<?= $fechaMinima ?>"
+                       max="<?= $fechaMaxima ?>"
                        class="form-control"
-                       value="<?= old('fecha_prestamo', date('Y-m-d')) ?>"
+                       value="<?= old('fecha_prestamo', $fechaMinima) ?>"
                        required>
             </div>
 
@@ -89,7 +96,7 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="submit" class="btn btn-success" <?= empty($libros) ? 'disabled' : '' ?>>Guardar</button>
         <a href="<?= site_url('prestamos') ?>" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
