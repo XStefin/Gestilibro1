@@ -3,23 +3,27 @@
 namespace App\Controllers;
 
 use App\Repositories\LibroRepository;
+use App\Models\CategoriaModel;
+use App\Models\PrestamoModel;
 use App\Libraries\AuthUser;
 
 class LibroController extends BaseController
 {
     protected $libros;
+    protected $categorias;
 
     public function __construct()
     {
         $this->libros = new LibroRepository();
+        $this->categorias = new CategoriaModel();
     }
 
     public function index()
     {
-       $disponibilidad = $this->request->getGet('disponibilidad');
+        $disponibilidad = $this->request->getGet('disponibilidad');
         $libros = $this->libros->obtenerTodos($disponibilidad);
 
-        $prestamoModel = new \App\Models\PrestamoModel();
+        $prestamoModel = new PrestamoModel();
 
         foreach ($libros as &$libro) {
             $prestamosActivos = $prestamoModel->contarPrestamosActivosPorLibro((int) $libro['id_libro']);
@@ -34,7 +38,8 @@ class LibroController extends BaseController
 
     public function create()
     {
-        return view('libros/create');
+        $data['categorias'] = $this->categorias->findAll();
+        return view('libros/create', $data);
     }
 
     public function store()
@@ -62,7 +67,7 @@ class LibroController extends BaseController
             'autor' => $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
             'anio' => $anio,
-            'categoria' => $this->request->getPost('categoria'),
+            'id_categoria' => $this->request->getPost('id_categoria'),
             'cantidad' => $this->request->getPost('cantidad') ?: 1,
             'disponibilidad' => $this->request->getPost('disponibilidad') ?? 'disponible',
         ];
@@ -75,6 +80,7 @@ class LibroController extends BaseController
     public function edit($id)
     {
         $data['libro'] = $this->libros->obtenerPorId($id);
+        $data['categorias'] = $this->categorias->findAll();
         return view('libros/edit', $data);
     }
 
@@ -103,7 +109,7 @@ class LibroController extends BaseController
             'autor' => $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
             'anio' => $anio,
-            'categoria' => $this->request->getPost('categoria'),
+            'id_categoria' => $this->request->getPost('id_categoria'),
             'cantidad' => $this->request->getPost('cantidad'),
             'disponibilidad' => $this->request->getPost('disponibilidad'),
         ];

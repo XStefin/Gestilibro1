@@ -21,6 +21,15 @@ $routes->group('usuarios', ['filter' => 'auth', 'namespace' => 'App\Controllers'
     $routes->get('delete/(:num)', 'UsuarioController::delete/$1');
 });
 
+$routes->group('categorias', ['filter' => 'auth', 'namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'CategoriaController::index');
+    $routes->get('create', 'CategoriaController::create');
+    $routes->post('store', 'CategoriaController::store');
+    $routes->get('edit/(:num)', 'CategoriaController::edit/$1');
+    $routes->post('update/(:num)', 'CategoriaController::update/$1');
+    $routes->get('delete/(:num)', 'CategoriaController::delete/$1');
+});
+
 $routes->group('prestamos', ['filter' => 'auth', 'namespace' => 'App\Controllers'], function($routes) {
     $routes->get('/', 'PrestamoController::index');
     $routes->get('create', 'PrestamoController::create');

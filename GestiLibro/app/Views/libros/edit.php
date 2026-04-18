@@ -29,37 +29,23 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Año</label>
-                <input 
-                    type="text" 
-                    name="anio" 
-                    class="form-control" 
-                    maxlength="4" 
-                    pattern="\d{4}" 
-                    inputmode="numeric"
-                    value="<?= esc($libro['anio']) ?>"
-                    required>
+                <input type="text" name="anio" class="form-control" maxlength="4" pattern="\d{4}" inputmode="numeric" value="<?= esc($libro['anio']) ?>" required>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label class="form-label">Categoría</label>
-                <input 
-                    type="text" 
-                    name="categoria" 
-                    class="form-control" 
-                    value="<?= esc($libro['categoria']) ?>" 
-                    required>
+                <select name="id_categoria" class="form-select" required>
+                    <?php foreach ($categorias as $c): ?>
+                        <option value="<?= $c['id_categoria'] ?>" <?= $libro['id_categoria'] == $c['id_categoria'] ? 'selected' : '' ?>>
+                            <?= esc($c['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label class="form-label">Cantidad</label>
-                <input 
-                    type="number" 
-                    name="cantidad" 
-                    class="form-control" 
-                    min="1" 
-                    step="1"
-                    value="<?= esc($libro['cantidad']) ?>" 
-                    required>
+                <input type="number" name="cantidad" class="form-control" min="1" step="1" value="<?= esc($libro['cantidad']) ?>" required>
             </div>
         </div>
 
@@ -68,7 +54,6 @@
             <select name="disponibilidad" class="form-select">
                 <option value="disponible" <?= $libro['disponibilidad'] === 'disponible' ? 'selected' : '' ?>>Disponible</option>
                 <option value="no_disponible" <?= $libro['disponibilidad'] === 'no_disponible' ? 'selected' : '' ?>>No disponible</option>
-                <option value="prestado" <?= $libro['disponibilidad'] === 'prestado' ? 'selected' : '' ?>>Prestado</option>
             </select>
         </div>
 

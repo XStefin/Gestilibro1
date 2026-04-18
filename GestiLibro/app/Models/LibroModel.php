@@ -11,14 +11,12 @@ class LibroModel extends BaseModel
         'autor',
         'editorial',
         'anio',
-        'categoria',
+        'id_categoria',
         'cantidad',
         'disponibilidad'
     ];
     protected $returnType = 'array';
     protected $useTimestamps = false;
-
-    
 
     public function getLibroConEstado($id)
     {
@@ -41,10 +39,11 @@ class LibroModel extends BaseModel
 
     public function obtenerLibros($disponibilidad = null)
     {
-        $query = $this->select('*');
+        $query = $this->select('Libro.*, Categoria.nombre AS categoria')
+                      ->join('Categoria', 'Categoria.id_categoria = Libro.id_categoria', 'left');
 
         if (!empty($disponibilidad)) {
-            $query->where('disponibilidad', $disponibilidad);
+            $query->where('Libro.disponibilidad', $disponibilidad);
         }
 
         return $query->findAll();

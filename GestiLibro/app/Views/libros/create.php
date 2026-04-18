@@ -29,22 +29,19 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label">Año</label>
-                <input 
-                    type="text" 
-                    name="anio" 
-                    class="form-control" 
-                    maxlength="4" 
-                    pattern="\d{4}" 
-                    inputmode="numeric" 
-                    placeholder="Ej: 2026"
-                    title="Ingrese un año válido de 4 dígitos"
-                    value="<?= old('anio') ?>"
-                    required>
+                <input type="text" name="anio" class="form-control" maxlength="4" pattern="\d{4}" inputmode="numeric" placeholder="Ej: 2026" value="<?= old('anio') ?>" required>
             </div>
 
             <div class="col-md-6 mb-3">
                 <label class="form-label">Categoría</label>
-                <input type="text" name="categoria" class="form-control" value="<?= old('categoria') ?>" required>
+                <select name="id_categoria" class="form-select" required>
+                    <option value="">Seleccione una categoría</option>
+                    <?php foreach ($categorias as $c): ?>
+                        <option value="<?= $c['id_categoria'] ?>" <?= old('id_categoria') == $c['id_categoria'] ? 'selected' : '' ?>>
+                            <?= esc($c['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="col-md-6 mb-3">

@@ -51,6 +51,14 @@
                 </li>
             <?php endif; ?>
 
+            <?php if ($rol === 'administrador'): ?>
+                <li class="nav-item mb-2">
+                    <a href="<?= base_url('categorias') ?>" class="nav-link d-flex align-items-center">
+                        <i class="fa-solid fa-tags me-2"></i> <span>Categorías</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
             <li class="nav-item mb-2">
                 <a href="<?= base_url('libros') ?>" class="nav-link d-flex align-items-center">
                     <i class="fa-solid fa-book-open me-2"></i> <span>Libros</span>
