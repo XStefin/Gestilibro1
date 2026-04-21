@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Controllers;
+
+use CodeIgniter\RESTful\ResourceController;
 use App\Models\LibroModel;
 use App\Models\PrestamoModel;
 use App\Models\UsuarioModel;
 
-class DashboardController extends BaseController
+class DashboardController extends ResourceController
 {
+    protected $format = 'json';
+
     protected $libroModel;
     protected $prestamoModel;
     protected $usuarioModel;
@@ -17,18 +21,18 @@ class DashboardController extends BaseController
         $this->prestamoModel = new PrestamoModel();
         $this->usuarioModel = new UsuarioModel();
     }
+
     public function index()
     {
-        $libros = $this->libroModel->findAll();
-        $prestamos = $this->prestamoModel->findAll();
-        $usuarios = $this->usuarioModel->findAll();
-
         $data = [
-            "libros" => count($libros),
-            "prestamos" => count($prestamos),
-            "usuarios"=> count($usuarios)
+            "libros"     => $this->libroModel->countAllResults(),
+            "prestamos"  => $this->prestamoModel->countAllResults(),
+            "usuarios"   => $this->usuarioModel->countAllResults()
         ];
-        // Aquí podrías pasar datos del modelo, por ahora solo la vista
-        return view('dashboard',$data);
+
+        return $this->respond([
+            "status" => "success",
+            "data" => $data
+        ]);
     }
 }

@@ -1,76 +1,96 @@
 <?php
-
 namespace App\Controllers;
+use CodeIgniter\RESTful\ResourceController;
 
-use App\Models\UsuarioModel;
-use App\Models\RolModel;
-
-class UsuarioController extends BaseController
+class UsuarioController extends ResourceController
 {
-    protected $usuarioModel;
-    protected $rolModel;
-
-    public function __construct()
-    {
-        $this->usuarioModel = new UsuarioModel();
-        $this->rolModel = new RolModel();
-    }
+    protected $modelName = 'App\Models\UsuarioModel';
+    protected $format = 'json';
 
     public function index()
     {
-        $data['usuarios'] = $this->usuarioModel->obtenerRol();
-        return view('usuarios/index', $data);
+        return $this->respond($this->model->findAll());
+    }
+
+    public function show($id = null)
+    {
+        $data = $this->model->find($id);
+
+        if (!$data) {
+            return $this->failNotFound('Usuario no encontrado');
+        }
+
+        return $this->respond($data);
     }
 
     public function create()
     {
-        $data['roles'] = $this->rolModel->findAll();
-        return view('usuarios/create', $data);
-    }
+        $data = $this->request->getJSON(true);
 
-    public function store()
-    {
-        $this->usuarioModel->insert([
-            'nombre' => $this->request->getPost('nombre'),
-            'apellido' => $this->request->getPost('apellido'),
-            'correo' => $this->request->getPost('correo'),
-            'contrasena' => password_hash($this->request->getPost('contrasena'), PASSWORD_DEFAULT),
-            'id_rol' => $this->request->getPost('id_rol'),
-            'username'=> $this->request->getPost('username'),
+        // Validaciones
+        if ($this->model->where('correo', $data['correo'])->first()) {
+            return $this->fail([
+                'correo' => 'Este correo ya está registrado'
+            ]);
+        }
+
+        if ($this->model->where('username', $data['username'])->first()) {
+            return $this->fail([
+                'username' => 'Este nombre de usuario ya está en uso'
+            ]);
+        }
+
+        // Hash contraseña
+        $data['contrasena'] = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+
+        // Guardar usuario
+        $this->model->insert($data);
+        $data['esRegistro'] = $data['esRegistro'] ? true : false; // Asegurar que la clave exista
+        // 🔥 Detectar si es registro
+        if (!empty($data['esRegistro']) && $data['esRegistro'] === true) {
+
+            $email = \Config\Services::email();
+
+            $email->setTo($data['correo']);
+            $email->setSubject('Registro exitoso');
+            $email->setMessage("
+            Hola {$data['username']},
+            Tu cuenta ha sido creada correctamente.
+            Ya puedes iniciar sesión.")
+            ;
+
+            if (!$email->send()) {
+                log_message('error', $email->printDebugger(['headers']));
+            }
+        }
+
+        return $this->respondCreated([
+            'message' => 'Usuario creado correctamente'
         ]);
-        return redirect()->to('/usuarios')->with('success', 'Usuario registrado correctamente.');
     }
 
-     public function edit($id)
+    public function update($id = null)
     {
-        $data['usuario'] = $this->usuarioModel->find($id);
-        $data['roles'] = $this->rolModel->findAll();
-        return view('usuarios/edit', $data);
+        $data = $this->request->getJSON(true);
+        $passwordHash = password_hash($data['contrasena'], PASSWORD_BCRYPT);
+        $data['contrasena'] = $passwordHash;
+        if (!$this->model->find($id)) {
+            return $this->failNotFound('Usuario no encontrado');
+        }
+
+        $this->model->update($id, $data);
+
+        return $this->respond(['message' => 'Usuario actualizado']);
     }
 
-    public function update($id)
-{
-    $data = [
-        'nombre' => $this->request->getPost('nombre'),
-        'apellido' => $this->request->getPost('apellido'),
-        'correo' => $this->request->getPost('correo'),
-        'id_rol' => $this->request->getPost('id_rol'),
-    ];
-
-    // Solo actualizar la contraseña si se envió
-    $contrasena = $this->request->getPost('contrasena');
-    if (!empty($contrasena)) {
-        $data['contrasena'] = password_hash($contrasena, PASSWORD_DEFAULT);
-    }
-
-    $this->usuarioModel->update($id, $data);
-    return redirect()->to('/usuarios')->with('success', 'Usuario actualizado correctamente.');
-}
-  
-
-    public function delete($id)
+    public function delete($id = null)
     {
-        $this->usuarioModel->delete($id);
-        return redirect()->to('/usuarios');
+        if (!$this->model->find($id)) {
+            return $this->failNotFound('Usuario no encontrado');
+        }
+
+        $this->model->delete($id);
+
+        return $this->respondDeleted(['message' => 'Usuario eliminado']);
     }
 }

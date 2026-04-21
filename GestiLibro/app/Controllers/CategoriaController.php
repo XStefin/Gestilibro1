@@ -1,62 +1,61 @@
 <?php
-
 namespace App\Controllers;
-
 use App\Models\CategoriaModel;
-use CodeIgniter\Controller;
-use App\Libraries\AuthUser;
+use App\Models\LibroModel;
+use CodeIgniter\RESTful\ResourceController;
 
-class CategoriaController extends Controller
+class CategoriaController extends ResourceController
 {
-    protected $categoriaModel;
+    protected $modelName = 'App\Models\CategoriaModel';
+    protected $format = 'json';
 
-    public function __construct()
+    public function index()
     {
-        $this->categoriaModel = new CategoriaModel();
+        return $this->respond($this->model->findAll());
     }
 
-     public function index()
+    public function show($id = null)
     {
-        $model = new CategoriaModel();
-        $data['categorias'] = $model->findAll();
-        $data['user'] = AuthUser::getInstance();
-        return view('categorias/index', $data);
+        return $this->respond($this->model->find($id));
     }
 
     public function create()
     {
-        return view('categorias/create');
+        $data = $this->request->getJSON(true);
+        if ($this->model->where('nombre', $data['nombre'])->first()) {
+            return $this->fail([
+                'nombre' => 'Esta categoría ya está en uso'
+            ]);
+        }
+        $this->model->insert($data);
+
+        return $this->respondCreated($data);
     }
 
-    public function store()
+    public function update($id = null)
     {
-        $this->categoriaModel->insert([
-            'nombre' => $this->request->getPost('nombre'),
-            'descripcion' => $this->request->getPost('descripcion'),
-        ]);
+        $data = $this->request->getJSON(true);
+        if ($this->model->where('nombre', $data['nombre'])->first()) {
+            return $this->fail([
+                'nombre' => 'Esta categoría ya está en uso'
+            ]);
+        }
+        $this->model->update($id, $data);
 
-        return redirect()->to('/categorias');
+        return $this->respond(['message' => 'Categoría actualizada']);
     }
 
-    public function edit($id)
+    public function delete($id = null)
     {
-        $data['categoria'] = $this->categoriaModel->find($id);
-        return view('categorias/edit', $data);
-    }
+        $LibroModel = new LibroModel();
+        $Libro = $LibroModel->where('id_categoria', $id)->first();
+        if ($Libro) {
+            return $this->fail([
+                'nombre' => 'Existe un libro asociado a esta categoría, no se puede eliminar'
+            ]);
+        }
+        $this->model->delete($id);
 
-    public function update($id)
-    {
-        $this->categoriaModel->update($id, [
-            'nombre' => $this->request->getPost('nombre'),
-            'descripcion' => $this->request->getPost('descripcion'),
-        ]);
-
-        return redirect()->to('/categorias');
-    }
-
-    public function delete($id)
-    {
-        $this->categoriaModel->delete($id);
-        return redirect()->to('/categorias');
+        return $this->respondDeleted(['message' => 'Categoría eliminada']);
     }
 }

@@ -1,81 +1,58 @@
 <?php
-
 namespace App\Controllers;
+use App\Models\PrestamoModel;
+use CodeIgniter\RESTful\ResourceController;
 
-use App\Repositories\LibroRepository;
-use App\Models\CategoriaModel;
-use App\Libraries\AuthUser;
-
-class LibroController extends BaseController
+class LibroController extends ResourceController
 {
-    protected $libros;
-    protected $categorias;
-
-    public function __construct()
-    {
-        $this->libros = new LibroRepository();
-        $this->categorias = new CategoriaModel();
-    }
+    protected $modelName = 'App\Models\LibroModel';
+    protected $format = 'json';
 
     public function index()
     {
-        $disponibilidad = $this->request->getGet('disponibilidad');
-        $data['libros'] = $this->libros->obtenerTodosConCategoria($disponibilidad);
-        $data['categoryExist'] = $this->categorias->findAll();
-        $data['user'] = AuthUser::getInstance();
+        return $this->respond($this->model->findAll());
+    }
 
-        return view('libros/index', $data);
+    public function show($id = null)
+    {
+        $data = $this->model->find($id);
+
+        if (!$data) {
+            return $this->failNotFound('Libro no encontrado');
+        }
+
+        return $this->respond($data);
     }
 
     public function create()
     {
-        $data['categorias'] = $this->categorias->findAll();
-        return view('libros/create', $data);
+        $data = $this->request->getJSON(true);
+
+        $this->model->insert($data);
+
+        return $this->respondCreated($data);
     }
 
-    public function store()
+    public function update($id = null)
     {
-        $data = [
-            'titulo' => $this->request->getPost('titulo'),
-            'autor' => $this->request->getPost('autor'),
-            'editorial' => $this->request->getPost('editorial'),
-            'anio' => $this->request->getPost('anio'),
-            'disponibilidad' => $this->request->getPost('disponibilidad') ?? 'disponible',
-            'id_categoria' => $this->request->getPost('id_categoria'),
-        ];
+        $data = $this->request->getJSON(true);
 
-        $this->libros->crear($data);
-        return redirect()->to('/libros')->with('success', 'Libro agregado correctamente.');
+        $this->model->update($id, $data);
+
+        return $this->respond(['message' => 'Libro actualizado']);
     }
 
-    public function edit($id)
+    public function delete($id = null)
     {
-        $data['libro'] = $this->libros->obtenerPorId($id);
-        $data['categorias'] = $this->categorias->findAll();
-        return view('libros/edit', $data);
-    }
-
-    public function update($id)
-    {
-        $data = [
-            'titulo' => $this->request->getPost('titulo'),
-            'autor' => $this->request->getPost('autor'),
-            'editorial' => $this->request->getPost('editorial'),
-            'anio' => $this->request->getPost('anio'),
-            'disponibilidad' => $this->request->getPost('disponibilidad'),
-            'id_categoria' => $this->request->getPost('id_categoria'),
-        ];
-
-        $this->libros->actualizar($id, $data);
-        return redirect()->to('/libros')->with('success', 'Libro actualizado correctamente.');
-    }
-
-    public function delete($id)
-    {
-        if ($this->libros->eliminarLogico($id)) {
-            return redirect()->to('/libros')->with('success', 'Libro marcado como no disponible.');
+        $PrestamoModel = new PrestamoModel();
+        $Prestamo = $PrestamoModel->where('id_libro', $id)->first();
+        if ($Prestamo) {
+            return $this->fail([
+                'nombre' => 'Existe un préstamo asociado a este libro, no se puede eliminar'
+            ]);
         }
+        $this->model->delete($id);
 
-        return redirect()->to('/libros')->with('error', 'No se pudo eliminar el libro.');
+        return $this->respondDeleted(['message' => 'Libro eliminado']);
     }
 }
