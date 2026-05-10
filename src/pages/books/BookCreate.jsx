@@ -1,209 +1,122 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaPlus } from "react-icons/fa6";
-import Sidebar from "../../components/layout/Sidebar";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import SelectField from "../../components/ui/SelectField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { useApiList } from "../../hooks/useApiList";
+import { apiRequest } from "../../services/api";
+import { useMemo, useState } from "react";
 import "./BookCreate.css";
 
+const maxDate = (() => {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .split("T")[0];
+})();
+
 export default function BookCreate() {
-  const categorias = [
-    { id_categoria: 1, nombre: "Tecnología" },
-    { id_categoria: 2, nombre: "Novela" },
-    { id_categoria: 3, nombre: "Historia" },
-    { id_categoria: 4, nombre: "Educación" },
-  ];
-
-  const [form, setForm] = useState({
-    titulo: "",
-    autor: "",
-    editorial: "",
-    anio: "",
-    id_categoria: "",
-    cantidad: 1,
+  const navigate = useNavigate();
+  const { form, handleChange, resetForm, error, setError, success, setSuccess } = useForm({
+    titulo: "", autor: "", editorial: "", anio: "", id_categoria: "", cantidad: 1,
   });
+  const [loading, setLoading] = useState(false);
+  const { data: categorias, loading: loadingCategorias } = useApiList("/categorias");
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const categoriaOptions = useMemo(
+    () => categorias.map((c) => ({ value: c.id_categoria, label: c.nombre })),
+    [categorias]
+  );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    if (name === "anio") {
-      const onlyNumbers = value.replace(/\D/g, "").slice(0, 4);
-      setForm((prev) => ({ ...prev, [name]: onlyNumbers }));
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
-
-    if (error) setError("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.titulo.trim()) return setError("El título es obligatorio.");
+    if (!form.autor.trim()) return setError("El autor es obligatorio.");
+    if (!form.anio) return setError("Debe seleccionar una fecha.");
+    if (form.anio > maxDate) return setError("No puede seleccionar un año superior al actual.");
+    if (!form.id_categoria) return setError("Debe seleccionar una categoría.");
+    if (Number(form.cantidad) < 1) return setError("La cantidad debe ser mayor o igual a 1.");
 
-    if (!form.titulo.trim()) {
-      setError("El título es obligatorio.");
-      return;
+    try {
+      setLoading(true);
+      setError(""); setSuccess("");
+      await apiRequest("/libros", {
+        method: "POST",
+        body: JSON.stringify({
+          titulo: form.titulo.trim(),
+          autor: form.autor.trim(),
+          editorial: form.editorial.trim(),
+          anio: Number(form.anio.split("-")[0]),
+          id_categoria: Number(form.id_categoria),
+          cantidad: Number(form.cantidad),
+          disponibilidad: Number(form.cantidad) > 0 ? "disponible" : "no_disponible",
+        }),
+      });
+      setSuccess("Libro guardado correctamente.");
+      resetForm();
+      setTimeout(() => navigate("/books"), 1000);
+    } catch (err) {
+      setError(err.message || "No fue posible guardar el libro.");
+    } finally {
+      setLoading(false);
     }
-
-    if (!form.autor.trim()) {
-      setError("El autor es obligatorio.");
-      return;
-    }
-
-    if (!/^\d{4}$/.test(form.anio)) {
-      setError("El año debe tener 4 dígitos.");
-      return;
-    }
-
-    if (!form.id_categoria) {
-      setError("Debe seleccionar una categoría.");
-      return;
-    }
-
-    if (Number(form.cantidad) < 1) {
-      setError("La cantidad debe ser mayor o igual a 1.");
-      return;
-    }
-
-    setError("");
-    setSuccess("Libro guardado correctamente.");
-
-    setForm({
-      titulo: "",
-      autor: "",
-      editorial: "",
-      anio: "",
-      id_categoria: "",
-      cantidad: 1,
-    });
   };
 
   return (
-    <div className="book-create-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={<FaPlus />} title="Añadir Libro">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="book-create-content">
-        <div className="book-create-card">
-          <h2 className="book-create-title">
-            <FaPlus />
-            <span>Añadir Libro</span>
-          </h2>
+        <form onSubmit={handleSubmit}>
+          <InputField label="Título" name="titulo" value={form.titulo} onChange={handleChange} required />
+          <InputField label="Autor" name="autor" value={form.autor} onChange={handleChange} required />
+          <InputField label="Editorial" name="editorial" value={form.editorial} onChange={handleChange} />
 
-          {error && (
-            <div className="alert-box alert-danger">
-              <span>{error}</span>
-              <button type="button" onClick={() => setError("")}>
-                ×
-              </button>
-            </div>
-          )}
+          <div className="form-grid">
+            <InputField
+              label="Fecha de publicación"
+              name="anio"
+              type="date"
+              value={form.anio}
+              onChange={handleChange}
+              max={maxDate}
+              required
+            />
+            <SelectField
+              label="Categoría"
+              name="id_categoria"
+              value={form.id_categoria}
+              onChange={handleChange}
+              required
+              disabled={loadingCategorias}
+              placeholder={loadingCategorias ? "Cargando categorías..." : "Seleccione una categoría"}
+              options={categoriaOptions}
+            />
+            <InputField
+              label="Cantidad"
+              name="cantidad"
+              type="number"
+              min="1"
+              step="1"
+              value={form.cantidad}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Título</label>
-              <input
-                type="text"
-                name="titulo"
-                className="form-control"
-                value={form.titulo}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Autor</label>
-              <input
-                type="text"
-                name="autor"
-                className="form-control"
-                value={form.autor}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Editorial</label>
-              <input
-                type="text"
-                name="editorial"
-                className="form-control"
-                value={form.editorial}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label">Año</label>
-                <input
-                  type="text"
-                  name="anio"
-                  className="form-control"
-                  maxLength="4"
-                  placeholder="Ej: 2026"
-                  value={form.anio}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Categoría</label>
-                <select
-                  name="id_categoria"
-                  className="form-control"
-                  value={form.id_categoria}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Seleccione una categoría</option>
-                  {categorias.map((c) => (
-                    <option key={c.id_categoria} value={c.id_categoria}>
-                      {c.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Cantidad</label>
-                <input
-                  type="number"
-                  name="cantidad"
-                  className="form-control"
-                  min="1"
-                  step="1"
-                  value={form.cantidad}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn-save">
-                Guardar
-              </button>
-
-              <Link to="/books" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+          <FormActions
+            cancelTo="/books"
+            submitLabel="Guardar"
+            loadingLabel="Guardando..."
+            loading={loading}
+          />
+        </form>
+      </FormCard>
+    </PageLayout>
   );
 }

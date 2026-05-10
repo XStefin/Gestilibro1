@@ -1,293 +1,191 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import Sidebar from "../../components/layout/Sidebar";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import SelectField from "../../components/ui/SelectField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { useApiList } from "../../hooks/useApiList";
+import { useAuthUser } from "../../hooks/useAuthUser";
+import { apiRequest } from "../../services/api";
 import "./LoanEdit.css";
+
+const ESTADO_OPTIONS = [
+  { value: "prestado", label: "Prestado" },
+  { value: "devuelto", label: "Devuelto" },
+  { value: "atrasado", label: "Atrasado" },
+];
 
 export default function LoanEdit() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { authUser, canManage } = useAuthUser();
 
-  const authUser = {
-    id_usuario: 2,
-    nombre: "Carlos",
-    apellido: "Ramírez",
-    rol: "Administrador",
-  };
+  const { form, setForm, handleChange, error, setError, success, setSuccess } = useForm({
+    id_usuario: authUser.id ? String(authUser.id) : "",
+    id_libro: "", fecha_prestamo: "", fecha_devolucion: "", estado: "prestado",
+  });
+  const [loadingLoan, setLoadingLoan] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [loanFound, setLoanFound] = useState(true);
 
-  const rol = authUser.rol.toLowerCase();
-  const puedeCambiarUsuario = ["administrador", "bibliotecario"].includes(rol);
+  const { data: usuarios, loading: loadingUsers } = useApiList("/usuarios");
+  const { data: libros, loading: loadingBooks } = useApiList("/libros");
 
-  const usuarios = [
-    { id_usuario: 1, nombre: "Diana", apellido: "Sterpin" },
-    { id_usuario: 2, nombre: "Carlos", apellido: "Ramírez" },
-    { id_usuario: 3, nombre: "Laura", apellido: "Gómez" },
-  ];
+  const usuarioOptions = useMemo(
+    () => usuarios.map((u) => ({ value: u.id_usuario, label: `${u.nombre} ${u.apellido}` })),
+    [usuarios]
+  );
+  const libroOptions = useMemo(
+    () => libros.map((l) => ({ value: l.id_libro, label: l.titulo })),
+    [libros]
+  );
 
-  const libros = [
-    { id_libro: 1, titulo: "Clean Code" },
-    { id_libro: 2, titulo: "Cien años de soledad" },
-    { id_libro: 3, titulo: "Introducción a la Historia" },
-  ];
+  const usuarioActual = useMemo(
+    () => usuarios.find((u) => String(u.id_usuario) === String(form.id_usuario)) || null,
+    [usuarios, form.id_usuario]
+  );
 
-  const prestamosMock = [
-    {
-      id_prestamo: 1,
-      id_usuario: 1,
-      id_libro: 1,
-      fecha_prestamo: "2026-04-20",
-      fecha_devolucion: "2026-04-28",
-      estado: "prestado",
-    },
-    {
-      id_prestamo: 2,
-      id_usuario: 2,
-      id_libro: 2,
-      fecha_prestamo: "2026-04-10",
-      fecha_devolucion: "2026-04-17",
-      estado: "devuelto",
-    },
-    {
-      id_prestamo: 3,
-      id_usuario: 3,
-      id_libro: 3,
-      fecha_prestamo: "2026-04-01",
-      fecha_devolucion: "",
-      estado: "atrasado",
-    },
-  ];
-
-  const prestamoInicial = useMemo(() => {
-    return (
-      prestamosMock.find(
-        (prestamo) => String(prestamo.id_prestamo) === String(id)
-      ) || null
-    );
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingLoan(true);
+        const data = await apiRequest(`/prestamos/${id}`);
+        setForm({
+          id_usuario: data.id_usuario ? String(data.id_usuario) : "",
+          id_libro: data.id_libro ? String(data.id_libro) : "",
+          fecha_prestamo: data.fecha_prestamo || "",
+          fecha_devolucion: data.fecha_devolucion || "",
+          estado: data.estado || "prestado",
+        });
+        setLoanFound(true);
+      } catch (err) {
+        setLoanFound(false);
+        setError(err.message || "No se encontró el préstamo a editar.");
+      } finally {
+        setLoadingLoan(false);
+      }
+    })();
   }, [id]);
 
-  const [form, setForm] = useState(
-    prestamoInicial || {
-      id_usuario: String(authUser.id_usuario),
-      id_libro: "",
-      fecha_prestamo: "",
-      fecha_devolucion: "",
-      estado: "prestado",
-    }
-  );
-
-  const [error, setError] = useState(
-    prestamoInicial ? "" : "No se encontró el préstamo a editar."
-  );
-  const [success, setSuccess] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (error === "No se encontró el préstamo a editar.") return;
-
-    if (error) setError("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.id_usuario) return setError("Debe seleccionar un usuario.");
+    if (!form.id_libro) return setError("Debe seleccionar un libro.");
+    if (!form.fecha_prestamo) return setError("Debe seleccionar la fecha de préstamo.");
+    if (form.fecha_devolucion && form.fecha_devolucion < form.fecha_prestamo)
+      return setError("La fecha de devolución no puede ser menor que la fecha de préstamo.");
+    if (!form.estado) return setError("Debe seleccionar un estado.");
 
-    if (!form.id_usuario) {
-      setError("Debe seleccionar un usuario.");
-      return;
+    try {
+      setSaving(true); setError(""); setSuccess("");
+      await apiRequest(`/prestamos/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          id_usuario: Number(form.id_usuario), id_libro: Number(form.id_libro),
+          fecha_prestamo: form.fecha_prestamo,
+          fecha_devolucion: form.fecha_devolucion || null,
+          estado: form.estado,
+        }),
+      });
+      setSuccess("Préstamo actualizado correctamente.");
+      setTimeout(() => navigate("/loans"), 1000);
+    } catch (err) {
+      setError(err.message || "No fue posible actualizar el préstamo.");
+    } finally {
+      setSaving(false);
     }
-
-    if (!form.id_libro) {
-      setError("Debe seleccionar un libro.");
-      return;
-    }
-
-    if (!form.fecha_prestamo) {
-      setError("Debe seleccionar la fecha de préstamo.");
-      return;
-    }
-
-    if (
-      form.fecha_devolucion &&
-      form.fecha_devolucion < form.fecha_prestamo
-    ) {
-      setError(
-        "La fecha de devolución no puede ser menor que la fecha de préstamo."
-      );
-      return;
-    }
-
-    if (!form.estado) {
-      setError("Debe seleccionar un estado.");
-      return;
-    }
-
-    setError("");
-    setSuccess("Préstamo actualizado correctamente.");
   };
 
   return (
-    <div className="loan-edit-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={null} title="Editar Préstamo">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="loan-edit-content">
-        <div className="loan-edit-card">
-          <h2 className="loan-edit-title">Editar Préstamo</h2>
-
-          {error && (
-            <div className="alert-box alert-danger">
-              <span>{error}</span>
-              <button type="button" onClick={() => setError("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
+        {loadingLoan ? (
+          <AlertMessage type="info" message="Cargando préstamo..." />
+        ) : (
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="id_usuario" className="form-label">
-                Usuario
-              </label>
-
-              {puedeCambiarUsuario ? (
-                <select
-                  name="id_usuario"
-                  id="id_usuario"
-                  className="form-control"
-                  value={form.id_usuario}
-                  onChange={handleChange}
-                  required
-                  disabled={!prestamoInicial}
-                >
-                  {usuarios.map((usuario) => (
-                    <option key={usuario.id_usuario} value={usuario.id_usuario}>
-                      {usuario.nombre} {usuario.apellido}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <>
-                  <input
-                    type="hidden"
-                    name="id_usuario"
-                    value={form.id_usuario}
-                  />
-
-                  <select className="form-control" disabled>
-                    {usuarios
-                      .filter(
-                        (usuario) =>
-                          String(usuario.id_usuario) ===
-                          String(prestamoInicial?.id_usuario)
-                      )
-                      .map((usuario) => (
-                        <option key={usuario.id_usuario}>
-                          {usuario.nombre} {usuario.apellido}
-                        </option>
-                      ))}
-                  </select>
-                </>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="id_libro" className="form-label">
-                Libro
-              </label>
-              <select
-                name="id_libro"
-                id="id_libro"
-                className="form-control"
-                value={form.id_libro}
+            {canManage ? (
+              <SelectField
+                label="Usuario"
+                name="id_usuario"
+                value={form.id_usuario}
                 onChange={handleChange}
                 required
-                disabled={!prestamoInicial}
-              >
-                {libros.map((libro) => (
-                  <option key={libro.id_libro} value={libro.id_libro}>
-                    {libro.titulo}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="fecha_prestamo" className="form-label">
-                Fecha de Préstamo
-              </label>
-              <input
-                type="date"
-                name="fecha_prestamo"
-                id="fecha_prestamo"
-                className="form-control"
-                value={form.fecha_prestamo}
-                onChange={handleChange}
-                required
-                disabled={!prestamoInicial}
+                disabled={!loanFound || loadingUsers}
+                placeholder={loadingUsers ? "Cargando usuarios..." : "Seleccione un usuario"}
+                options={usuarioOptions}
               />
-            </div>
+            ) : (
+              <>
+                <input type="hidden" name="id_usuario" value={form.id_usuario} />
+                <InputField
+                  label="Usuario"
+                  name="_usuario_display"
+                  value={
+                    usuarioActual
+                      ? `${usuarioActual.nombre} ${usuarioActual.apellido}`
+                      : `${authUser.nombre} ${authUser.apellido}`.trim()
+                  }
+                  disabled
+                />
+              </>
+            )}
 
-            <div className="form-group">
-              <label htmlFor="fecha_devolucion" className="form-label">
-                Fecha de Devolución
-              </label>
-              <input
-                type="date"
-                name="fecha_devolucion"
-                id="fecha_devolucion"
-                className="form-control"
-                value={form.fecha_devolucion}
-                onChange={handleChange}
-                disabled={!prestamoInicial}
-              />
-            </div>
+            <SelectField
+              label="Libro"
+              name="id_libro"
+              value={form.id_libro}
+              onChange={handleChange}
+              required
+              disabled={!loanFound || loadingBooks}
+              placeholder={loadingBooks ? "Cargando libros..." : "Seleccione un libro"}
+              options={libroOptions}
+            />
 
-            <div className="form-group">
-              <label htmlFor="estado" className="form-label">
-                Estado
-              </label>
-              <select
-                name="estado"
-                id="estado"
-                className="form-control"
-                value={form.estado}
-                onChange={handleChange}
-                disabled={!prestamoInicial}
-              >
-                <option value="prestado">Prestado</option>
-                <option value="devuelto">Devuelto</option>
-                <option value="atrasado">Atrasado</option>
-              </select>
-            </div>
+            <InputField
+              label="Fecha de Préstamo"
+              name="fecha_prestamo"
+              type="date"
+              value={form.fecha_prestamo}
+              onChange={handleChange}
+              required
+              disabled={!loanFound}
+            />
+            <InputField
+              label="Fecha de Devolución"
+              name="fecha_devolucion"
+              type="date"
+              value={form.fecha_devolucion}
+              onChange={handleChange}
+              min={form.fecha_prestamo || undefined}
+              disabled={!loanFound}
+            />
 
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="btn-save"
-                disabled={!prestamoInicial}
-              >
-                Actualizar
-              </button>
+            <SelectField
+              label="Estado"
+              name="estado"
+              value={form.estado}
+              onChange={handleChange}
+              disabled={!loanFound}
+              options={ESTADO_OPTIONS}
+              placeholder={null}
+            />
 
-              <Link to="/loans" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
+            <FormActions
+              cancelTo="/loans"
+              submitLabel="Actualizar"
+              loadingLabel="Actualizando..."
+              loading={saving}
+              disabled={!loanFound}
+            />
           </form>
-        </div>
-      </main>
-    </div>
+        )}
+      </FormCard>
+    </PageLayout>
   );
 }

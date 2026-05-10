@@ -1,283 +1,108 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import Sidebar from "../../components/layout/Sidebar";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import SelectField from "../../components/ui/SelectField";
+import CheckboxField from "../../components/ui/CheckboxField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { apiRequest } from "../../services/api";
 import "./UserEdit.css";
+
+const ROL_OPTIONS = [
+  { value: "Administrador", label: "Administrador" },
+  { value: "Bibliotecario", label: "Bibliotecario" },
+  { value: "Estudiante", label: "Estudiante" },
+];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function UserEdit() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { form, setForm, handleChange, error, setError, success, setSuccess } = useForm({
+    nombre: "", apellido: "", correo: "", username: "",
+    contrasena: "", rol: "Estudiante", pin: "", active: false,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [userFound, setUserFound] = useState(true);
 
-  const usersMock = [
-    {
-      id_usuario: 1,
-      nombre: "Diana",
-      apellido: "Sterpin",
-      correo: "diana@example.com",
-      username: "dsterpin",
-      rol: "Administrador",
-      pin: "1234",
-      active: true,
-    },
-    {
-      id_usuario: 2,
-      nombre: "Carlos",
-      apellido: "Ramírez",
-      correo: "carlos@example.com",
-      username: "cramirez",
-      rol: "Bibliotecario",
-      pin: "5678",
-      active: true,
-    },
-    {
-      id_usuario: 3,
-      nombre: "Laura",
-      apellido: "Gómez",
-      correo: "laura@example.com",
-      username: "lgomez",
-      rol: "Estudiante",
-      pin: "9876",
-      active: false,
-    },
-  ];
-
-  const usuarioInicial = useMemo(() => {
-    return usersMock.find((u) => String(u.id_usuario) === String(id)) || null;
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await apiRequest(`/usuarios/${id}`);
+        setForm({
+          nombre: data.nombre || "", apellido: data.apellido || "",
+          correo: data.correo || "", username: data.username || "",
+          contrasena: "", rol: data.rol || "Estudiante",
+          pin: data.pin || "",
+          active: data.active === true || data.active === 1 || data.active === "1",
+        });
+        setUserFound(true);
+      } catch (err) {
+        setUserFound(false);
+        setError(err.message || "No se encontró el usuario a editar.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
-  const [form, setForm] = useState(
-    usuarioInicial || {
-      nombre: "",
-      apellido: "",
-      correo: "",
-      username: "",
-      contrasena: "",
-      rol: "Estudiante",
-      pin: "",
-      active: false,
-    }
-  );
-
-  const [error, setError] = useState(
-    usuarioInicial ? "" : "No se encontró el usuario a editar."
-  );
-  const [success, setSuccess] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (name === "pin") {
-      const onlyNumbers = value.replace(/\D/g, "").slice(0, 4);
-      setForm((prev) => ({
-        ...prev,
-        [name]: onlyNumbers,
-      }));
-    } else if (type === "checkbox") {
-      setForm((prev) => ({
-        ...prev,
-        [name]: checked,
-      }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    if (error === "No se encontró el usuario a editar.") return;
-
-    if (error) setError("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.nombre.trim()) return setError("El nombre es obligatorio.");
+    if (!form.apellido.trim()) return setError("El apellido es obligatorio.");
+    if (!form.correo.trim()) return setError("El correo es obligatorio.");
+    if (!EMAIL_REGEX.test(form.correo)) return setError("Debe ingresar un correo válido.");
+    if (!form.username.trim()) return setError("El username es obligatorio.");
+    if (!form.rol) return setError("Debe seleccionar un rol.");
+    if (form.pin && !/^\d{4}$/.test(form.pin)) return setError("El PIN debe tener exactamente 4 dígitos.");
 
-    if (!form.nombre.trim()) {
-      setError("El nombre es obligatorio.");
-      return;
+    try {
+      setSaving(true); setError(""); setSuccess("");
+      const payload = {
+        nombre: form.nombre.trim(), apellido: form.apellido.trim(),
+        correo: form.correo.trim(), username: form.username.trim(),
+        rol: form.rol, pin: form.pin || "", active: form.active ? 1 : 0,
+      };
+      if (form.contrasena.trim()) payload.contrasena = form.contrasena;
+
+      await apiRequest(`/usuarios/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+      setSuccess("Usuario actualizado correctamente.");
+      setTimeout(() => navigate("/users"), 1000);
+    } catch (err) {
+      setError(err.message || "No fue posible actualizar el usuario.");
+    } finally {
+      setSaving(false);
     }
-
-    if (!form.apellido.trim()) {
-      setError("El apellido es obligatorio.");
-      return;
-    }
-
-    if (!form.correo.trim()) {
-      setError("El correo es obligatorio.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.correo)) {
-      setError("Debe ingresar un correo válido.");
-      return;
-    }
-
-    if (!form.username.trim()) {
-      setError("El username es obligatorio.");
-      return;
-    }
-
-    if (!form.rol) {
-      setError("Debe seleccionar un rol.");
-      return;
-    }
-
-    if (form.pin && !/^\d{4}$/.test(form.pin)) {
-      setError("El PIN debe tener exactamente 4 dígitos.");
-      return;
-    }
-
-    setError("");
-    setSuccess("Usuario actualizado correctamente.");
   };
 
   return (
-    <div className="user-edit-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={null} title="Editar Usuario">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="user-edit-content">
-        <div className="user-edit-card">
-          <h4 className="user-edit-title">Editar Usuario</h4>
-
-          {error && (
-            <div className="alert-box alert-danger">
-              <span>{error}</span>
-              <button type="button" onClick={() => setError("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
+        {loading ? (
+          <AlertMessage type="info" message="Cargando usuario..." />
+        ) : (
           <form onSubmit={handleSubmit} className="user-edit-form">
-            <div className="form-group">
-              <label className="form-label">Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                value={form.nombre}
-                className="form-control"
-                onChange={handleChange}
-                required
-                disabled={!usuarioInicial}
-              />
-            </div>
+            <InputField label="Nombre" name="nombre" value={form.nombre} onChange={handleChange} required disabled={!userFound} />
+            <InputField label="Apellido" name="apellido" value={form.apellido} onChange={handleChange} required disabled={!userFound} />
+            <InputField label="Correo" name="correo" type="email" value={form.correo} onChange={handleChange} required disabled={!userFound} />
+            <InputField label="Username" name="username" value={form.username} onChange={handleChange} required disabled={!userFound} />
+            <InputField label="Nueva Contraseña (opcional)" name="contrasena" type="password" value={form.contrasena} onChange={handleChange} disabled={!userFound} />
+            <SelectField label="Rol" name="rol" value={form.rol} onChange={handleChange} required disabled={!userFound} options={ROL_OPTIONS} placeholder={null} />
+            <InputField label="PIN" name="pin" maxLength="4" value={form.pin} onChange={handleChange} disabled={!userFound} />
+            <CheckboxField label="Activo" name="active" id="active" checked={form.active} onChange={handleChange} disabled={!userFound} />
 
-            <div className="form-group">
-              <label className="form-label">Apellido</label>
-              <input
-                type="text"
-                name="apellido"
-                value={form.apellido}
-                className="form-control"
-                onChange={handleChange}
-                required
-                disabled={!usuarioInicial}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Correo</label>
-              <input
-                type="email"
-                name="correo"
-                value={form.correo}
-                className="form-control"
-                onChange={handleChange}
-                required
-                disabled={!usuarioInicial}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={form.username}
-                className="form-control"
-                onChange={handleChange}
-                required
-                disabled={!usuarioInicial}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Nueva Contraseña (opcional)</label>
-              <input
-                type="password"
-                name="contrasena"
-                value={form.contrasena}
-                className="form-control"
-                onChange={handleChange}
-                disabled={!usuarioInicial}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Rol</label>
-              <select
-                name="rol"
-                className="form-control"
-                value={form.rol}
-                onChange={handleChange}
-                required
-                disabled={!usuarioInicial}
-              >
-                <option value="Administrador">Administrador</option>
-                <option value="Bibliotecario">Bibliotecario</option>
-                <option value="Estudiante">Estudiante</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">PIN</label>
-              <input
-                type="text"
-                name="pin"
-                className="form-control"
-                maxLength="4"
-                value={form.pin}
-                onChange={handleChange}
-                disabled={!usuarioInicial}
-              />
-            </div>
-
-            <div className="form-check">
-              <input
-                type="checkbox"
-                name="active"
-                id="active"
-                className="form-check-input"
-                checked={form.active}
-                onChange={handleChange}
-                disabled={!usuarioInicial}
-              />
-              <label htmlFor="active" className="form-check-label">
-                Activo
-              </label>
-            </div>
-
-            <div className="form-actions">
-              <button className="btn-save" disabled={!usuarioInicial}>
-                Actualizar
-              </button>
-
-              <Link to="/users" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
+            <FormActions cancelTo="/users" submitLabel="Actualizar" loadingLabel="Actualizando..." loading={saving} disabled={!userFound} />
           </form>
-        </div>
-      </main>
-    </div>
+        )}
+      </FormCard>
+    </PageLayout>
   );
 }

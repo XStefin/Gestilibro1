@@ -1,238 +1,149 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import Sidebar from "../../components/layout/Sidebar";
+import { useNavigate } from "react-router-dom";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import SelectField from "../../components/ui/SelectField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { useApiList } from "../../hooks/useApiList";
+import { useAuthUser } from "../../hooks/useAuthUser";
+import { apiRequest } from "../../services/api";
 import "./LoanCreate.css";
 
+function localToday() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString().split("T")[0];
+}
+function maxLoanDate() {
+  const now = new Date();
+  now.setDate(now.getDate() + 21);
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString().split("T")[0];
+}
+
 export default function LoanCreate() {
-  const authUser = {
-    id_usuario: 2,
-    nombre: "Carlos",
-    apellido: "Ramírez",
-    rol: "Administrador",
-  };
+  const navigate = useNavigate();
+  const { authUser, canManage } = useAuthUser();
+  const today = useMemo(localToday, []);
+  const maxDate = useMemo(maxLoanDate, []);
 
-  const rol = authUser.rol.toLowerCase();
-  const puedeCambiarUsuario = ["administrador", "bibliotecario"].includes(rol);
-
-  const usuarios = [
-    { id_usuario: 1, nombre: "Diana", apellido: "Sterpin" },
-    { id_usuario: 2, nombre: "Carlos", apellido: "Ramírez" },
-    { id_usuario: 3, nombre: "Laura", apellido: "Gómez" },
-  ];
-
-  const libros = [
-    { id_libro: 1, titulo: "Clean Code", copias_disponibles: 5 },
-    { id_libro: 2, titulo: "Introducción a la Historia", copias_disponibles: 2 },
-    { id_libro: 3, titulo: "Patrones de Diseño", copias_disponibles: 1 },
-  ];
-
-  const today = useMemo(() => {
-    const now = new Date();
-    const offset = now.getTimezoneOffset();
-    const localDate = new Date(now.getTime() - offset * 60000);
-    return localDate.toISOString().split("T")[0];
-  }, []);
-
-  const maxDate = useMemo(() => {
-    const now = new Date();
-    now.setDate(now.getDate() + 21);
-    const offset = now.getTimezoneOffset();
-    const localDate = new Date(now.getTime() - offset * 60000);
-    return localDate.toISOString().split("T")[0];
-  }, []);
-
-  const [form, setForm] = useState({
-    id_usuario: String(authUser.id_usuario),
-    id_libro: "",
-    fecha_prestamo: today,
-    fecha_devolucion: "",
+  const { form, handleChange, resetForm, error: formError, setError, success, setSuccess } = useForm({
+    id_usuario: authUser.id ? String(authUser.id) : "",
+    id_libro: "", fecha_prestamo: today, fecha_devolucion: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const [warning, setWarning] = useState("");
-  const [success, setSuccess] = useState("");
+  const { data: usuarios } = useApiList("/usuarios");
+  const { data: libros } = useApiList("/libros");
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const usuarioOptions = useMemo(
+    () => usuarios.map((u) => ({ value: u.id_usuario, label: `${u.nombre} ${u.apellido}` })),
+    [usuarios]
+  );
+  const libroOptions = useMemo(
+    () => libros.map((l) => ({ value: l.id_libro, label: `${l.titulo} (Disponibles: ${l.cantidad})` })),
+    [libros]
+  );
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (warning) setWarning("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.id_usuario) return setError("Debe seleccionar un usuario.");
+    if (!form.id_libro) return setError("Debe seleccionar un libro.");
+    if (!form.fecha_prestamo) return setError("Debe seleccionar la fecha de préstamo.");
+    if (form.fecha_devolucion && form.fecha_devolucion < form.fecha_prestamo)
+      return setError("La fecha de devolución no puede ser menor que la fecha de préstamo.");
 
-    if (!form.id_usuario) {
-      setWarning("Debe seleccionar un usuario.");
-      return;
+    try {
+      setLoading(true); setError(""); setSuccess("");
+      await apiRequest("/prestamos", {
+        method: "POST",
+        body: JSON.stringify({
+          id_usuario: form.id_usuario, id_libro: form.id_libro,
+          fecha_prestamo: form.fecha_prestamo,
+          fecha_devolucion: form.fecha_devolucion || null,
+        }),
+      });
+      setSuccess("Préstamo guardado correctamente.");
+      resetForm();
+      setTimeout(() => navigate("/loans"), 1000);
+    } catch (err) {
+      setError(err.message || "Error al guardar el préstamo.");
+    } finally {
+      setLoading(false);
     }
-
-    if (!form.id_libro) {
-      setWarning("Debe seleccionar un libro.");
-      return;
-    }
-
-    if (!form.fecha_prestamo) {
-      setWarning("Debe seleccionar la fecha de préstamo.");
-      return;
-    }
-
-    if (
-      form.fecha_devolucion &&
-      form.fecha_devolucion < form.fecha_prestamo
-    ) {
-      setWarning("La fecha de devolución no puede ser menor que la fecha de préstamo.");
-      return;
-    }
-
-    setWarning("");
-    setSuccess("Préstamo guardado correctamente.");
-
-    setForm({
-      id_usuario: String(authUser.id_usuario),
-      id_libro: "",
-      fecha_prestamo: today,
-      fecha_devolucion: "",
-    });
   };
 
   return (
-    <div className="loan-create-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={null} title="Añadir Préstamo">
+        <AlertMessage type="danger" message={formError} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
+        {libros.length === 0 && (
+          <AlertMessage type="warning" message="No hay libros disponibles." />
+        )}
 
-      <main className="loan-create-content">
-        <div className="loan-create-card">
-          <h2 className="loan-create-title">Añadir Préstamo</h2>
-
-          {warning && (
-            <div className="alert-box alert-warning">
-              <span>{warning}</span>
-              <button type="button" onClick={() => setWarning("")}>
-                ×
-              </button>
-            </div>
+        <form onSubmit={handleSubmit}>
+          {canManage ? (
+            <SelectField
+              label="Usuario"
+              name="id_usuario"
+              value={form.id_usuario}
+              onChange={handleChange}
+              placeholder="Seleccione"
+              options={usuarioOptions}
+            />
+          ) : (
+            <InputField
+              label="Usuario"
+              name="id_usuario_display"
+              value={`${authUser.nombre} ${authUser.apellido}`}
+              disabled
+            />
           )}
 
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
+          <SelectField
+            label="Libro"
+            name="id_libro"
+            value={form.id_libro}
+            onChange={handleChange}
+            placeholder="Seleccione"
+            options={libroOptions}
+          />
 
-          {libros.length === 0 && (
-            <div className="alert-box alert-warning simple-alert">
-              <span>No hay libros disponibles para préstamo.</span>
-            </div>
-          )}
+          <div className="loan-form-grid">
+            <InputField
+              label="Fecha de Préstamo"
+              name="fecha_prestamo"
+              type="date"
+              value={form.fecha_prestamo}
+              onChange={handleChange}
+              min={today}
+              max={maxDate}
+              required
+            />
+            <InputField
+              label="Fecha de Devolución"
+              name="fecha_devolucion"
+              type="date"
+              value={form.fecha_devolucion}
+              onChange={handleChange}
+              min={form.fecha_prestamo || today}
+              max={maxDate}
+            />
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Usuario</label>
-
-              {puedeCambiarUsuario ? (
-                <select
-                  name="id_usuario"
-                  className="form-control"
-                  value={form.id_usuario}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Seleccione un usuario</option>
-                  {usuarios.map((usuario) => (
-                    <option key={usuario.id_usuario} value={usuario.id_usuario}>
-                      {usuario.nombre} {usuario.apellido}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <>
-                  <input type="hidden" name="id_usuario" value={form.id_usuario} />
-                  <select className="form-control" disabled>
-                    {usuarios
-                      .filter(
-                        (usuario) =>
-                          String(usuario.id_usuario) === String(authUser.id_usuario)
-                      )
-                      .map((usuario) => (
-                        <option key={usuario.id_usuario}>
-                          {usuario.nombre} {usuario.apellido}
-                        </option>
-                      ))}
-                  </select>
-                </>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Libro</label>
-              <select
-                name="id_libro"
-                className="form-control"
-                value={form.id_libro}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Seleccione un libro</option>
-                {libros.map((libro) => (
-                  <option key={libro.id_libro} value={libro.id_libro}>
-                    {libro.titulo} (Disponibles: {libro.copias_disponibles})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="loan-form-grid">
-              <div className="form-group">
-                <label className="form-label">Fecha de Préstamo</label>
-                <input
-                  type="date"
-                  name="fecha_prestamo"
-                  min={today}
-                  max={maxDate}
-                  className="form-control"
-                  value={form.fecha_prestamo}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Fecha de Devolución</label>
-                <input
-                  type="date"
-                  name="fecha_devolucion"
-                  min={form.fecha_prestamo || today}
-                  max={maxDate}
-                  className="form-control"
-                  value={form.fecha_devolucion}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="btn-save"
-                disabled={libros.length === 0}
-              >
-                Guardar
-              </button>
-
-              <Link to="/loans" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+          <FormActions
+            cancelTo="/loans"
+            submitLabel="Guardar"
+            loadingLabel="Guardando..."
+            loading={loading}
+            disabled={libros.length === 0}
+          />
+        </form>
+      </FormCard>
+    </PageLayout>
   );
 }

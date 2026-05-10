@@ -1,104 +1,77 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FaPenToSquare, FaTag, FaTags, FaTrash } from "react-icons/fa6";
-import Sidebar from "../../components/layout/Sidebar";
+import { FaTag, FaTags } from "react-icons/fa6";
+import PageLayout from "../../components/layout/PageLayout";
+import PageHeader from "../../components/ui/PageHeader";
+import AlertMessage from "../../components/ui/AlertMessage";
+import TableStatusRow from "../../components/ui/TableStatusRow";
+import CategoryTableRow from "../../components/categories/CategoryTableRow";
+import { useApiList } from "../../hooks/useApiList";
+import { apiRequest } from "../../services/api";
 import "./CategoriesList.css";
 
 export default function CategoriesList() {
-  const [categories, setCategories] = useState([
-    {
-      id_categoria: 1,
-      nombre: "Novela",
-      descripcion: "Libros de narrativa y ficción",
-    },
-    {
-      id_categoria: 2,
-      nombre: "Tecnología",
-      descripcion: "Libros de programación, software y sistemas",
-    },
-    {
-      id_categoria: 3,
-      nombre: "Historia",
-      descripcion: "Textos históricos y documentales",
-    },
-  ]);
+  const { data: categories, loading, error: fetchError, reload } = useApiList("/categorias");
+  const [actionMsg, setActionMsg] = useState({ type: "", text: "" });
 
-  const handleDelete = (id) => {
-    const confirmDelete = window.confirm("¿Eliminar categoría?");
-    if (!confirmDelete) return;
-
-    setCategories((prev) =>
-      prev.filter((category) => category.id_categoria !== id)
-    );
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Eliminar categoría?")) return;
+    try {
+      await apiRequest(`/categorias/${id}`, { method: "DELETE" });
+      reload();
+    } catch (err) {
+      setActionMsg({ type: "danger", text: err.message || "No se pudo eliminar la categoría" });
+    }
   };
 
   return (
-    <div className="categories-layout">
-      <Sidebar />
+    <PageLayout>
+      <AlertMessage
+        type={actionMsg.type}
+        message={actionMsg.text}
+        onClose={() => setActionMsg({ type: "", text: "" })}
+      />
 
-      <main className="categories-content">
-        <h4 className="categories-title">
-          <FaTags className="title-icon" />
-          Gestión de Categorías
-        </h4>
-
-        <div className="categories-actions">
+      <PageHeader
+        icon={<FaTags />}
+        title="Gestión de Categorías"
+        action={
           <Link to="/categories/create" className="btn-new-category">
             <FaTag />
             <span>Nueva Categoría</span>
           </Link>
-        </div>
+        }
+      />
 
-        <div className="categories-table-wrapper">
-          <table className="categories-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.length > 0 ? (
-                categories.map((category) => (
-                  <tr key={category.id_categoria}>
-                    <td>{category.id_categoria}</td>
-                    <td>{category.nombre}</td>
-                    <td>{category.descripcion}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <Link
-                          to={`/categories/edit/${category.id_categoria}`}
-                          className="btn-action btn-edit"
-                          title="Editar"
-                        >
-                          <FaPenToSquare />
-                        </Link>
-
-                        <button
-                          type="button"
-                          className="btn-action btn-delete"
-                          title="Eliminar"
-                          onClick={() => handleDelete(category.id_categoria)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" className="empty-row">
-                    No hay categorías registradas.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </main>
-    </div>
+      <div className="categories-table-wrapper">
+        <table className="categories-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Descripción</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <TableStatusRow colSpan={4} message="Cargando categorías..." />
+            ) : fetchError ? (
+              <TableStatusRow colSpan={4} message={fetchError} />
+            ) : categories.length > 0 ? (
+              categories.map((cat) => (
+                <CategoryTableRow
+                  key={cat.id_categoria}
+                  category={cat}
+                  onDelete={handleDelete}
+                />
+              ))
+            ) : (
+              <TableStatusRow colSpan={4} message="No hay categorías registradas." />
+            )}
+          </tbody>
+        </table>
+      </div>
+    </PageLayout>
   );
 }

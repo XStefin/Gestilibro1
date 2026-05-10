@@ -1,109 +1,78 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import Sidebar from "../../components/layout/Sidebar";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import TextAreaField from "../../components/ui/TextAreaField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { apiRequest } from "../../services/api";
 import "./CategoryCreate.css";
 
 export default function CategoryCreate() {
-  const [form, setForm] = useState({
+  const { form, handleChange, resetForm, error, setError, success, setSuccess } = useForm({
     nombre: "",
     descripcion: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const [warning, setWarning] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (warning) setWarning("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!form.nombre.trim()) {
-      setWarning("El nombre de la categoría es obligatorio.");
-      setSuccess("");
+      setError("El nombre de la categoría es obligatorio.");
       return;
     }
 
-    setWarning("");
-    setSuccess("Categoría guardada correctamente.");
-
-    setForm({
-      nombre: "",
-      descripcion: "",
-    });
+    try {
+      setLoading(true);
+      setError("");
+      setSuccess("");
+      await apiRequest("/categorias", {
+        method: "POST",
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          descripcion: form.descripcion.trim(),
+        }),
+      });
+      setSuccess("Categoría guardada correctamente.");
+      resetForm();
+    } catch (err) {
+      setError(err.message || "Error al guardar la categoría.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="category-create-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={null} title="Añadir Categoría">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="category-create-content">
-        <div className="category-create-card">
-          <h2 className="category-create-title">Añadir Categoría</h2>
+        <form onSubmit={handleSubmit}>
+          <InputField
+            label="Nombre"
+            name="nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            required
+          />
+          <TextAreaField
+            label="Descripción"
+            name="descripcion"
+            value={form.descripcion}
+            onChange={handleChange}
+            rows={4}
+          />
 
-          {warning && (
-            <div className="alert-box alert-warning">
-              <span>{warning}</span>
-              <button type="button" onClick={() => setWarning("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                className="form-control"
-                value={form.nombre}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Descripción</label>
-              <textarea
-                name="descripcion"
-                className="form-control"
-                rows="4"
-                value={form.descripcion}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-actions">
-              <Link to="/categories" className="btn-cancel">
-                Cancelar
-              </Link>
-
-              <button type="submit" className="btn-save">
-                Guardar
-              </button>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+          <FormActions
+            cancelTo="/categories"
+            submitLabel="Guardar"
+            loadingLabel="Guardando..."
+            loading={loading}
+          />
+        </form>
+      </FormCard>
+    </PageLayout>
   );
 }

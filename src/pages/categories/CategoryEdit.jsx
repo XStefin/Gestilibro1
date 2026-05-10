@@ -1,144 +1,109 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import Sidebar from "../../components/layout/Sidebar";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import TextAreaField from "../../components/ui/TextAreaField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { apiRequest } from "../../services/api";
 import "./CategoryEdit.css";
 
 export default function CategoryEdit() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { form, setForm, handleChange, error, setError, success, setSuccess } = useForm({
+    nombre: "",
+    descripcion: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const categoriesMock = [
-    {
-      id_categoria: 1,
-      nombre: "Novela",
-      descripcion: "Libros de narrativa y ficción",
-    },
-    {
-      id_categoria: 2,
-      nombre: "Tecnología",
-      descripcion: "Libros de programación, software y sistemas",
-    },
-    {
-      id_categoria: 3,
-      nombre: "Historia",
-      descripcion: "Textos históricos y documentales",
-    },
-  ];
-
-  const categoriaInicial = useMemo(() => {
-    return (
-      categoriesMock.find(
-        (categoria) => String(categoria.id_categoria) === String(id)
-      ) || null
-    );
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const data = await apiRequest(`/categorias/${id}`);
+        const cat = data?.data || data;
+        if (!cat) {
+          setError("No se encontró la categoría.");
+          return;
+        }
+        setForm({
+          nombre: cat.nombre || "",
+          descripcion: cat.descripcion || "",
+        });
+      } catch {
+        setError("Error al cargar la categoría.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
-  const [form, setForm] = useState(
-    categoriaInicial || {
-      nombre: "",
-      descripcion: "",
-    }
-  );
-
-  const [warning, setWarning] = useState(
-    categoriaInicial ? "" : "No se encontró la categoría a editar."
-  );
-  const [success, setSuccess] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (warning === "No se encontró la categoría a editar.") return;
-
-    if (warning) setWarning("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!form.nombre.trim()) {
-      setWarning("El nombre de la categoría es obligatorio.");
-      setSuccess("");
+      setError("El nombre de la categoría es obligatorio.");
       return;
     }
 
-    setWarning("");
-    setSuccess("Categoría actualizada correctamente.");
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+      await apiRequest(`/categorias/${id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          nombre: form.nombre.trim(),
+          descripcion: form.descripcion.trim(),
+        }),
+      });
+      setSuccess("Categoría actualizada correctamente.");
+      setTimeout(() => navigate("/categories"), 1000);
+    } catch (err) {
+      setError(err.message || "Error al actualizar la categoría.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="category-edit-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={null} title="Editar Categoría">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="category-edit-content">
-        <div className="category-edit-card">
-          <h2 className="category-edit-title">Editar Categoría</h2>
-
-          {warning && (
-            <div className="alert-box alert-warning">
-              <span>{warning}</span>
-              <button type="button" onClick={() => setWarning("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
+        {loading ? (
+          <AlertMessage type="info" message="Cargando categoría..." />
+        ) : (
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Nombre</label>
-              <input
-                type="text"
-                name="nombre"
-                className="form-control"
-                value={form.nombre}
-                onChange={handleChange}
-                required
-                disabled={!categoriaInicial}
-              />
-            </div>
+            <InputField
+              label="Nombre"
+              name="nombre"
+              value={form.nombre}
+              onChange={handleChange}
+              required
+            />
+            <TextAreaField
+              label="Descripción"
+              name="descripcion"
+              value={form.descripcion}
+              onChange={handleChange}
+              rows={4}
+            />
 
-            <div className="form-group">
-              <label>Descripción</label>
-              <textarea
-                name="descripcion"
-                className="form-control"
-                rows="4"
-                value={form.descripcion}
-                onChange={handleChange}
-                disabled={!categoriaInicial}
-              />
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="btn-save"
-                disabled={!categoriaInicial}
-              >
-                Actualizar
-              </button>
-
-              <Link to="/categories" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
+            <FormActions
+              cancelTo="/categories"
+              submitLabel="Actualizar"
+              loadingLabel="Actualizando..."
+              loading={saving}
+            />
           </form>
-        </div>
-      </main>
-    </div>
+        )}
+      </FormCard>
+    </PageLayout>
   );
 }

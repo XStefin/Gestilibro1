@@ -1,268 +1,84 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaUserPlus } from "react-icons/fa6";
-import Sidebar from "../../components/layout/Sidebar";
+import PageLayout from "../../components/layout/PageLayout";
+import FormCard from "../../components/ui/FormCard";
+import AlertMessage from "../../components/ui/AlertMessage";
+import InputField from "../../components/ui/InputField";
+import SelectField from "../../components/ui/SelectField";
+import CheckboxField from "../../components/ui/CheckboxField";
+import FormActions from "../../components/ui/FormActions";
+import { useForm } from "../../hooks/useForm";
+import { apiRequest } from "../../services/api";
 import "./UserCreate.css";
 
+const ROL_OPTIONS = [
+  { value: "Administrador", label: "Administrador" },
+  { value: "Bibliotecario", label: "Bibliotecario" },
+  { value: "Estudiante", label: "Estudiante" },
+];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function UserCreate() {
-  const [form, setForm] = useState({
-    nombre: "",
-    apellido: "",
-    correo: "",
-    username: "",
-    contrasena: "",
-    rol: "",
-    pin: "",
-    active: true,
+  const navigate = useNavigate();
+  const { form, handleChange, resetForm, error, setError, success, setSuccess } = useForm({
+    nombre: "", apellido: "", correo: "", username: "",
+    contrasena: "", rol: "", pin: "", active: true,
   });
+  const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    if (name === "pin") {
-      const onlyNumbers = value.replace(/\D/g, "").slice(0, 4);
-      setForm((prev) => ({
-        ...prev,
-        [name]: onlyNumbers,
-      }));
-    } else if (type === "checkbox") {
-      setForm((prev) => ({
-        ...prev,
-        [name]: checked,
-      }));
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    if (error) setError("");
-    if (success) setSuccess("");
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.nombre.trim()) return setError("El nombre es obligatorio.");
+    if (!form.apellido.trim()) return setError("El apellido es obligatorio.");
+    if (!form.correo.trim()) return setError("El correo es obligatorio.");
+    if (!EMAIL_REGEX.test(form.correo)) return setError("Debe ingresar un correo válido.");
+    if (!form.username.trim()) return setError("El username es obligatorio.");
+    if (!form.contrasena.trim()) return setError("La contraseña es obligatoria.");
+    if (!form.rol) return setError("Debe seleccionar un rol.");
+    if (form.pin && !/^\d{4}$/.test(form.pin)) return setError("El PIN debe tener exactamente 4 dígitos.");
 
-    if (!form.nombre.trim()) {
-      setError("El nombre es obligatorio.");
-      return;
+    try {
+      setLoading(true); setError(""); setSuccess("");
+      await apiRequest("/usuarios", {
+        method: "POST",
+        body: JSON.stringify({
+          nombre: form.nombre.trim(), apellido: form.apellido.trim(),
+          correo: form.correo.trim(), username: form.username.trim(),
+          contrasena: form.contrasena, rol: form.rol,
+          pin: form.pin || "", active: form.active ? 1 : 0, esRegistro: false,
+        }),
+      });
+      setSuccess("Usuario guardado correctamente.");
+      resetForm();
+      setTimeout(() => navigate("/users"), 1000);
+    } catch (err) {
+      setError(err.message || "No fue posible guardar el usuario.");
+    } finally {
+      setLoading(false);
     }
-
-    if (!form.apellido.trim()) {
-      setError("El apellido es obligatorio.");
-      return;
-    }
-
-    if (!form.correo.trim()) {
-      setError("El correo es obligatorio.");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.correo)) {
-      setError("Debe ingresar un correo válido.");
-      return;
-    }
-
-    if (!form.username.trim()) {
-      setError("El username es obligatorio.");
-      return;
-    }
-
-    if (!form.contrasena.trim()) {
-      setError("La contraseña es obligatoria.");
-      return;
-    }
-
-    if (!form.rol) {
-      setError("Debe seleccionar un rol.");
-      return;
-    }
-
-    if (form.pin && !/^\d{4}$/.test(form.pin)) {
-      setError("El PIN debe tener exactamente 4 dígitos.");
-      return;
-    }
-
-    setError("");
-    setSuccess("Usuario guardado correctamente.");
-
-    setForm({
-      nombre: "",
-      apellido: "",
-      correo: "",
-      username: "",
-      contrasena: "",
-      rol: "",
-      pin: "",
-      active: true,
-    });
   };
 
   return (
-    <div className="user-create-layout">
-      <Sidebar />
+    <PageLayout>
+      <FormCard icon={<FaUserPlus />} title="Nuevo Usuario">
+        <AlertMessage type="danger" message={error} onClose={() => setError("")} />
+        <AlertMessage type="success" message={success} onClose={() => setSuccess("")} />
 
-      <main className="user-create-content">
-        <div className="user-create-card">
-          <h4 className="user-create-title">
-            <FaUserPlus />
-            <span>Nuevo Usuario</span>
-          </h4>
+        <form onSubmit={handleSubmit} className="user-form">
+          <InputField label="Nombre" name="nombre" value={form.nombre} onChange={handleChange} required />
+          <InputField label="Apellido" name="apellido" value={form.apellido} onChange={handleChange} required />
+          <InputField label="Correo" name="correo" type="email" value={form.correo} onChange={handleChange} required />
+          <InputField label="Username" name="username" value={form.username} onChange={handleChange} required />
+          <InputField label="Contraseña" name="contrasena" type="password" value={form.contrasena} onChange={handleChange} required />
+          <SelectField label="Rol" name="rol" value={form.rol} onChange={handleChange} required placeholder="Seleccione un rol" options={ROL_OPTIONS} />
+          <InputField label="PIN" name="pin" maxLength="4" placeholder="Ej: 1234" value={form.pin} onChange={handleChange} />
+          <CheckboxField label="Activo" name="active" id="active" checked={form.active} onChange={handleChange} />
 
-          {error && (
-            <div className="alert-box alert-danger">
-              <span>{error}</span>
-              <button type="button" onClick={() => setError("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          {success && (
-            <div className="alert-box alert-success">
-              <span>{success}</span>
-              <button type="button" onClick={() => setSuccess("")}>
-                ×
-              </button>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="user-form">
-            <div className="form-group">
-              <label htmlFor="nombre" className="form-label">
-                Nombre
-              </label>
-              <input
-                type="text"
-                name="nombre"
-                id="nombre"
-                className="form-control"
-                value={form.nombre}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="apellido" className="form-label">
-                Apellido
-              </label>
-              <input
-                type="text"
-                name="apellido"
-                id="apellido"
-                className="form-control"
-                value={form.apellido}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="correo" className="form-label">
-                Correo
-              </label>
-              <input
-                type="email"
-                name="correo"
-                id="correo"
-                className="form-control"
-                value={form.correo}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="username" className="form-label">
-                Username
-              </label>
-              <input
-                type="text"
-                name="username"
-                id="username"
-                className="form-control"
-                value={form.username}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="contrasena" className="form-label">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                name="contrasena"
-                id="contrasena"
-                className="form-control"
-                value={form.contrasena}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Rol</label>
-              <select
-                name="rol"
-                className="form-control"
-                value={form.rol}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Seleccione un rol</option>
-                <option value="Administrador">Administrador</option>
-                <option value="Bibliotecario">Bibliotecario</option>
-                <option value="Estudiante">Estudiante</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">PIN</label>
-              <input
-                type="text"
-                name="pin"
-                className="form-control"
-                maxLength="4"
-                placeholder="Ej: 1234"
-                value={form.pin}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-check">
-              <input
-                type="checkbox"
-                name="active"
-                id="active"
-                className="form-check-input"
-                checked={form.active}
-                onChange={handleChange}
-              />
-              <label htmlFor="active" className="form-check-label">
-                Activo
-              </label>
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn-save">
-                Guardar
-              </button>
-
-              <Link to="/users" className="btn-cancel">
-                Cancelar
-              </Link>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+          <FormActions cancelTo="/users" submitLabel="Guardar" loadingLabel="Guardando..." loading={loading} />
+        </form>
+      </FormCard>
+    </PageLayout>
   );
 }

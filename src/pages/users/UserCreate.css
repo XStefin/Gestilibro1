@@ -150,3 +150,15 @@
 .btn-cancel:hover {
   background: #5c636a;
 }
+
+.user-create-layout {
+  display: flex;
+  height: 100vh; /* ocupa toda la pantalla */
+  overflow: hidden; /* evita doble scroll */
+}
+
+.user-create-content {
+  flex: 1;
+  overflow-y: auto; /* 👈 aquí aparece el scroll */
+  padding: 20px;
+}

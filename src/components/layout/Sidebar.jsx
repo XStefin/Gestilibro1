@@ -8,23 +8,22 @@ import {
   FaTags,
   FaUser,
 } from "react-icons/fa6";
+import { useAuthUser } from "../../hooks/useAuthUser";
 import "./Sidebar.css";
 
+/**
+ * Sidebar – barra lateral de navegación.
+ * Lee el usuario autenticado desde useAuthUser.
+ */
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Datos simulados por ahora
-  const authUser = {
-    nombreCompleto: "Diana Sterpin",
-    rol: "Administrador",
-    foto: "/images/usuario.jpg", // opcional si luego agregas la imagen en public/images
-  };
-
-  const rol = authUser.rol.toLowerCase();
+  const { authUser, rol } = useAuthUser();
 
   const handleLogout = (e) => {
     e.preventDefault();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -40,12 +39,12 @@ export default function Sidebar() {
 
         <div className="sidebar-user">
           <img
-            src={authUser.foto}
+            src="/images/usuario.jpg"
             alt="Usuario"
             className="sidebar-user-image"
             onError={(e) => {
               e.target.src =
-                "https://via.placeholder.com/80x80.png?text=User";
+                "https://png.pngtree.com/png-clipart/20191120/original/pngtree-outline-user-icon-png-image_5045523.jpg";
             }}
           />
           <h6>{authUser.nombreCompleto}</h6>
@@ -53,16 +52,18 @@ export default function Sidebar() {
         </div>
 
         <nav className="sidebar-nav">
+          {(rol === "administrador" || rol === "bibliotecario") && (
+            <Link
+              to="/dashboard"
+              className={isActive("/dashboard") ? "active" : ""}
+            >
+              <FaHouse />
+              <span>Home</span>
+            </Link>
+          )}
+
           {rol === "administrador" && (
             <>
-              <Link
-                to="/dashboard"
-                className={isActive("/dashboard") ? "active" : ""}
-              >
-                <FaHouse />
-                <span>Home</span>
-              </Link>
-
               <Link to="/users" className={isActive("/users") ? "active" : ""}>
                 <FaUser />
                 <span>Usuarios</span>
