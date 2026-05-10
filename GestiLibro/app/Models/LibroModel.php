@@ -8,7 +8,7 @@ class LibroModel extends BaseModel
 {
     protected $table = 'Libro';
     protected $primaryKey = 'id_libro';
-    protected $allowedFields = ['titulo', 'autor', 'editorial', 'anio', 'disponibilidad', 'id_categoria'];
+    protected $allowedFields = ['titulo', 'autor', 'editorial', 'anio', 'disponibilidad', 'id_categoria','cantidad'];
     protected $returnType = 'array';
     protected $useTimestamps = false;
     protected $observers = [

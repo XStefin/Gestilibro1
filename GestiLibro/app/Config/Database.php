@@ -29,10 +29,10 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
-        'username'     => 'root',
-        'password'     => '',
-        'database'     => 'biblioteca_db',
+        'hostname'     => 'mysql-gestilibro.alwaysdata.net',
+        'username'     => 'gestilibro_user',
+        'password'     => 'contrasena578#',
+        'database'     => 'getilibro_epic',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,
