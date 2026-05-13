@@ -38,7 +38,7 @@ class CategoriaController extends ResourceController
     $data = json_decode($rawBody, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return $this->response->setStatusCode(400)->setJSON([
+        return $this->response->setStatusCode(500)->setJSON([
             'error' => 'JSON inválido',
             'detalle' => json_last_error_msg(),
             'body_recibido' => $rawBody,
@@ -47,7 +47,7 @@ class CategoriaController extends ResourceController
     }
 
     if (!isset($data['nombre']) || trim($data['nombre']) === '') {
-        return $this->response->setStatusCode(400)->setJSON([
+        return $this->response->setStatusCode(500)->setJSON([
             'error' => 'El campo nombre es obligatorio'
         ]);
     }
