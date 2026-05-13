@@ -38,7 +38,7 @@ class CategoriaController extends ResourceController
     $data = json_decode($rawBody, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        return $this->response->setStatusCode(500)->setJSON([
+        return $this->response->setStatusCode(400)->setJSON([
             'error' => 'JSON inválido',
             'detalle' => json_last_error_msg(),
             'body_recibido' => $rawBody,
@@ -47,20 +47,30 @@ class CategoriaController extends ResourceController
     }
 
     if (!isset($data['nombre']) || trim($data['nombre']) === '') {
-        return $this->response->setStatusCode(500)->setJSON([
+        return $this->response->setStatusCode(400)->setJSON([
             'error' => 'El campo nombre es obligatorio'
         ]);
     }
 
     if ($this->model->where('nombre', $data['nombre'])->first()) {
-        return $this->fail([
+        return $this->response->setStatusCode(409)->setJSON([
             'error' => 'Esta categoría ya está en uso'
         ]);
     }
 
-    $this->model->insert($data);
+    $this->model->insert([
+        'nombre' => $data['nombre'],
+        'descripcion' => $data['descripcion'] ?? null
+    ]);
 
-    return $this->respondCreated($data);
+    return $this->respondCreated([
+        'message' => 'Categoría creada correctamente',
+        'data' => [
+            'id_categoria' => $this->model->getInsertID(),
+            'nombre' => $data['nombre'],
+            'descripcion' => $data['descripcion'] ?? null
+        ]
+    ]);
 }
 
 
