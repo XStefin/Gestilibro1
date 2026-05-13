@@ -56,59 +56,77 @@ class UsuarioController extends ResourceController
     public function create()
     {
         $json = $this->leerJson();
-
+    
         if (!$json['ok']) {
             return $json['response'];
         }
-
+    
         $data = $json['data'];
-
+    
+        $nombre = trim($data['nombre'] ?? '');
+        $apellido = trim($data['apellido'] ?? '');
         $correo = trim($data['correo'] ?? '');
         $username = trim($data['username'] ?? '');
         $contrasena = $data['contrasena'] ?? '';
-
+    
+        if ($nombre === '') {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El nombre es obligatorio',
+                'field'   => 'nombre',
+            ]);
+        }
+    
+        if ($apellido === '') {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El apellido es obligatorio',
+                'field'   => 'apellido',
+            ]);
+        }
+    
         if ($correo === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El correo es obligatorio',
                 'field'   => 'correo',
             ]);
         }
-
+    
         if ($username === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El username es obligatorio',
                 'field'   => 'username',
             ]);
         }
-
+    
         if ($contrasena === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'La contraseña es obligatoria',
                 'field'   => 'contrasena',
             ]);
         }
-
+    
         if ($this->model->where('correo', $correo)->first()) {
             return $this->response->setStatusCode(409)->setJSON([
                 'message' => 'Este correo ya está registrado',
                 'field'   => 'correo',
             ]);
         }
-
+    
         if ($this->model->where('username', $username)->first()) {
             return $this->response->setStatusCode(409)->setJSON([
                 'message' => 'Este nombre de usuario ya está en uso',
                 'field'   => 'username',
             ]);
         }
-
+    
         $esRegistro = isset($data['esRegistro']) ? (bool) $data['esRegistro'] : false;
-
+    
         $pin = $esRegistro
             ? str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT)
             : trim($data['pin'] ?? '');
-
+    
         $datosInsertar = [
+            'nombre'     => $nombre,
+            'apellido'   => $apellido,
             'correo'     => $correo,
             'username'   => $username,
             'contrasena' => password_hash($contrasena, PASSWORD_BCRYPT),
@@ -116,43 +134,45 @@ class UsuarioController extends ResourceController
             'active'     => $esRegistro ? 0 : (isset($data['active']) ? (int) $data['active'] : 1),
             'rol'        => $esRegistro ? 'Estudiante' : ($data['rol'] ?? 'Administrador')
         ];
-
+    
         $insertId = $this->model->insert($datosInsertar, true);
-
+    
         if (!$insertId) {
             return $this->failServerError('No fue posible crear el usuario');
         }
-
+    
         if ($esRegistro) {
             $email = \Config\Services::email();
-
+    
             $email->setTo($correo);
             $email->setSubject('PIN de verificación de tu cuenta');
             $email->setMessage("
-Hola {$username},
-
-Tu cuenta fue creada correctamente.
-
-Tu PIN de verificación es: {$pin}
-
-Ingresa este PIN para activar tu cuenta.
-
-Si no realizaste este registro, puedes ignorar este mensaje.
+    Hola {$nombre},
+    
+    Tu cuenta fue creada correctamente.
+    
+    Tu PIN de verificación es: {$pin}
+    
+    Ingresa este PIN para activar tu cuenta.
+    
+    Si no realizaste este registro, puedes ignorar este mensaje.
             ");
-
+    
             if (!$email->send()) {
                 log_message('error', $email->printDebugger(['headers']));
                 $this->model->delete($insertId);
-
+    
                 return $this->failServerError(
                     'No se pudo enviar el correo con el PIN. Intenta nuevamente.'
                 );
             }
-
+    
             return $this->respondCreated([
                 'message' => 'Usuario registrado correctamente. Revisa tu correo para el PIN de verificación.',
                 'data' => [
                     'id_usuario' => $insertId,
+                    'nombre' => $nombre,
+                    'apellido' => $apellido,
                     'correo' => $correo,
                     'username' => $username,
                     'rol' => $datosInsertar['rol'],
@@ -160,11 +180,13 @@ Si no realizaste este registro, puedes ignorar este mensaje.
                 ]
             ]);
         }
-
+    
         return $this->respondCreated([
             'message' => 'Usuario creado correctamente',
             'data' => [
                 'id_usuario' => $insertId,
+                'nombre' => $nombre,
+                'apellido' => $apellido,
                 'correo' => $correo,
                 'username' => $username,
                 'rol' => $datosInsertar['rol'],
