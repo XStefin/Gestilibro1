@@ -32,20 +32,36 @@ class CategoriaController extends ResourceController
 
 
     public function create()
-    {
-        $data = $this->request->getJSON(true);
-        if ($this->model->where('nombre', $data['nombre'])->first()) {
-            return $this->fail([
-                'error' => 'Esta categoría ya está en uso'
-            ]);
-        }
-        $this->model->insert($data);
+{
+    $rawBody = $this->request->getBody();
 
+    $data = json_decode($rawBody, true);
 
-
-
-        return $this->respondCreated($data);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return $this->response->setStatusCode(400)->setJSON([
+            'error' => 'JSON inválido',
+            'detalle' => json_last_error_msg(),
+            'body_recibido' => $rawBody,
+            'content_type' => $this->request->getHeaderLine('Content-Type')
+        ]);
     }
+
+    if (!isset($data['nombre']) || trim($data['nombre']) === '') {
+        return $this->response->setStatusCode(400)->setJSON([
+            'error' => 'El campo nombre es obligatorio'
+        ]);
+    }
+
+    if ($this->model->where('nombre', $data['nombre'])->first()) {
+        return $this->fail([
+            'error' => 'Esta categoría ya está en uso'
+        ]);
+    }
+
+    $this->model->insert($data);
+
+    return $this->respondCreated($data);
+}
 
 
 
