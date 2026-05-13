@@ -314,110 +314,138 @@ Ingresa este PIN para activar tu cuenta.
         ]);
     }
 
-    public function update($id = null)
+   public function update($id = null)
     {
         $json = $this->leerJson();
-
+    
         if (!$json['ok']) {
             return $json['response'];
         }
-
+    
         $data = $json['data'];
-
+    
         $usuario = $this->model->find($id);
-
+    
         if (!$usuario) {
             return $this->failNotFound('Usuario no encontrado');
         }
-
+    
         if (empty($data)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'error' => 'No se recibieron datos para actualizar'
             ]);
         }
-
+    
         $datosActualizar = [];
-
+    
+        if (array_key_exists('nombre', $data)) {
+            $nombre = trim($data['nombre']);
+    
+            if ($nombre === '') {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'El nombre no puede estar vacío',
+                    'field'   => 'nombre'
+                ]);
+            }
+    
+            $datosActualizar['nombre'] = $nombre;
+        }
+    
+        if (array_key_exists('apellido', $data)) {
+            $apellido = trim($data['apellido']);
+    
+            if ($apellido === '') {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'El apellido no puede estar vacío',
+                    'field'   => 'apellido'
+                ]);
+            }
+    
+            $datosActualizar['apellido'] = $apellido;
+        }
+    
         if (array_key_exists('correo', $data)) {
             $correo = trim($data['correo']);
-
+    
             if ($correo === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El correo no puede estar vacío',
                     'field'   => 'correo'
                 ]);
             }
-
+    
             $correoExistente = $this->model
                 ->where('correo', $correo)
                 ->where('id_usuario !=', $id)
                 ->first();
-
+    
             if ($correoExistente) {
                 return $this->response->setStatusCode(409)->setJSON([
                     'message' => 'Este correo ya está registrado',
                     'field'   => 'correo'
                 ]);
             }
-
+    
             $datosActualizar['correo'] = $correo;
         }
-
+    
         if (array_key_exists('username', $data)) {
             $username = trim($data['username']);
-
+    
             if ($username === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El username no puede estar vacío',
                     'field'   => 'username'
                 ]);
             }
-
+    
             $usernameExistente = $this->model
                 ->where('username', $username)
                 ->where('id_usuario !=', $id)
                 ->first();
-
+    
             if ($usernameExistente) {
                 return $this->response->setStatusCode(409)->setJSON([
                     'message' => 'Este nombre de usuario ya está en uso',
                     'field'   => 'username'
                 ]);
             }
-
+    
             $datosActualizar['username'] = $username;
         }
-
+    
         if (array_key_exists('contrasena', $data)) {
             if (trim($data['contrasena']) !== '') {
                 $datosActualizar['contrasena'] = password_hash($data['contrasena'], PASSWORD_BCRYPT);
             }
         }
-
+    
         if (array_key_exists('rol', $data)) {
             $datosActualizar['rol'] = $data['rol'];
         }
-
+    
         if (array_key_exists('active', $data)) {
             $datosActualizar['active'] = (int) $data['active'];
         }
-
+    
         if (array_key_exists('pin', $data)) {
             $datosActualizar['pin'] = trim($data['pin']);
         }
-
+    
         if (empty($datosActualizar)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'error' => 'No hay campos válidos para actualizar'
             ]);
         }
-
+    
         $this->model->update($id, $datosActualizar);
-
+    
         return $this->respond([
             'message' => 'Usuario actualizado correctamente',
             'data' => [
                 'id_usuario' => $id,
+                'nombre' => $datosActualizar['nombre'] ?? $usuario['nombre'],
+                'apellido' => $datosActualizar['apellido'] ?? $usuario['apellido'],
                 'correo' => $datosActualizar['correo'] ?? $usuario['correo'],
                 'username' => $datosActualizar['username'] ?? $usuario['username'],
                 'rol' => $datosActualizar['rol'] ?? $usuario['rol'],
