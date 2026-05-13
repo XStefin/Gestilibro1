@@ -33,7 +33,7 @@ class CategoriaController extends ResourceController
 
     public function create()
 {
-    $rawBody = $this->request->getBody();
+    $rawBody = file_get_contents('php://input');
 
     $data = json_decode($rawBody, true);
 
