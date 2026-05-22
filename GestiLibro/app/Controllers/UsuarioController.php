@@ -37,6 +37,61 @@ class UsuarioController extends ResourceController
         ];
     }
 
+    private function enviarCorreo($correoDestino, $asunto, $mensaje)
+    {
+        $email = \Config\Services::email();
+
+        $fromEmail = getenv('EMAIL_FROM')
+            ?: getenv('email.SMTPUser')
+            ?: 'no-reply@gestilibro.com';
+
+        $fromName = getenv('EMAIL_FROM_NAME')
+            ?: 'GestiLibro';
+
+        $email->setFrom($fromEmail, $fromName);
+        $email->setTo($correoDestino);
+        $email->setSubject($asunto);
+        $email->setMessage($mensaje);
+
+        try {
+            if (!$email->send()) {
+                $debugEmail = $email->printDebugger([
+                    'headers',
+                    'subject',
+                    'body'
+                ]);
+
+                log_message('error', 'Error enviando correo a: ' . $correoDestino);
+                log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
+
+                return [
+                    'ok' => false,
+                    'debug' => $debugEmail,
+                    'exception' => null
+                ];
+            }
+
+            return [
+                'ok' => true,
+                'debug' => null,
+                'exception' => null
+            ];
+
+        } catch (\Throwable $e) {
+            log_message('error', 'Excepción enviando correo a ' . $correoDestino . ': ' . $e->getMessage());
+
+            return [
+                'ok' => false,
+                'debug' => null,
+                'exception' => [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
+            ];
+        }
+    }
+
     public function index()
     {
         return $this->respond($this->model->findAll());
@@ -56,119 +111,158 @@ class UsuarioController extends ResourceController
     public function create()
     {
         $json = $this->leerJson();
-    
+
         if (!$json['ok']) {
             return $json['response'];
         }
-    
+
         $data = $json['data'];
-    
+
         $nombre = trim($data['nombre'] ?? '');
         $apellido = trim($data['apellido'] ?? '');
-        $correo = trim($data['correo'] ?? '');
+        $correo = strtolower(trim($data['correo'] ?? $data['email'] ?? ''));
         $username = trim($data['username'] ?? '');
         $contrasena = $data['contrasena'] ?? '';
-    
+
         if ($nombre === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El nombre es obligatorio',
-                'field'   => 'nombre',
+                'field' => 'nombre'
             ]);
         }
-    
+
         if ($apellido === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El apellido es obligatorio',
-                'field'   => 'apellido',
+                'field' => 'apellido'
             ]);
         }
-    
+
         if ($correo === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El correo es obligatorio',
-                'field'   => 'correo',
+                'field' => 'correo'
             ]);
         }
-    
+
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El formato del correo no es válido',
+                'field' => 'correo'
+            ]);
+        }
+
         if ($username === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El username es obligatorio',
-                'field'   => 'username',
+                'field' => 'username'
             ]);
         }
-    
+
         if ($contrasena === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'La contraseña es obligatoria',
-                'field'   => 'contrasena',
+                'field' => 'contrasena'
             ]);
         }
-    
+
         if ($this->model->where('correo', $correo)->first()) {
             return $this->response->setStatusCode(409)->setJSON([
                 'message' => 'Este correo ya está registrado',
-                'field'   => 'correo',
+                'field' => 'correo'
             ]);
         }
-    
+
         if ($this->model->where('username', $username)->first()) {
             return $this->response->setStatusCode(409)->setJSON([
                 'message' => 'Este nombre de usuario ya está en uso',
-                'field'   => 'username',
+                'field' => 'username'
             ]);
         }
-    
+
         $esRegistro = isset($data['esRegistro']) ? (bool) $data['esRegistro'] : false;
-    
+
         $pin = $esRegistro
             ? str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT)
             : trim($data['pin'] ?? '');
-    
+
         $datosInsertar = [
-            'nombre'     => $nombre,
-            'apellido'   => $apellido,
-            'correo'     => $correo,
-            'username'   => $username,
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'correo' => $correo,
+            'username' => $username,
             'contrasena' => password_hash($contrasena, PASSWORD_BCRYPT),
-            'pin'        => $pin,
-            'active'     => $esRegistro ? 0 : (isset($data['active']) ? (int) $data['active'] : 1),
-            'rol'        => $esRegistro ? 'Estudiante' : ($data['rol'] ?? 'Administrador')
+            'pin' => $pin,
+            'active' => $esRegistro ? 0 : (isset($data['active']) ? (int) $data['active'] : 1),
+            'rol' => $esRegistro ? 'Estudiante' : ($data['rol'] ?? 'Administrador')
         ];
-    
-        $insertId = $this->model->insert($datosInsertar, true);
-    
-        if (!$insertId) {
-            return $this->failServerError('No fue posible crear el usuario');
-        }
-    
-        if ($esRegistro) {
-            $email = \Config\Services::email();
-    
-            $email->setTo($correo);
-            $email->setSubject('PIN de verificación de tu cuenta');
-            $email->setMessage("
-    Hola {$nombre},
-    
-    Tu cuenta fue creada correctamente.
-    
-    Tu PIN de verificación es: {$pin}
-    
-    Ingresa este PIN para activar tu cuenta.
-    
-    Si no realizaste este registro, puedes ignorar este mensaje.
-            ");
-    
-            if (!$email->send()) {
-                log_message('error', $email->printDebugger(['headers']));
-                $this->model->delete($insertId);
-    
-                return $this->failServerError(
-                    'No se pudo enviar el correo con el PIN. Intenta nuevamente.'
-                );
+
+        try {
+            $insertId = $this->model->insert($datosInsertar, true);
+
+            if (!$insertId) {
+                return $this->response->setStatusCode(500)->setJSON([
+                    'message' => 'No fue posible crear el usuario',
+                    'errors' => $this->model->errors()
+                ]);
             }
-    
+
+            if ($esRegistro) {
+                $mensajeCorreo = "
+Hola {$nombre},
+
+Tu cuenta fue creada correctamente.
+
+Tu PIN de verificación es: {$pin}
+
+Ingresa este PIN para activar tu cuenta.
+
+Si no realizaste este registro, puedes ignorar este mensaje.
+                ";
+
+                $resultadoCorreo = $this->enviarCorreo(
+                    $correo,
+                    'PIN de verificación de tu cuenta',
+                    $mensajeCorreo
+                );
+
+                if (!$resultadoCorreo['ok']) {
+                    $this->model->delete($insertId);
+
+                    return $this->response->setStatusCode(500)->setJSON([
+                        'message' => 'No se pudo enviar el correo con el PIN. Intenta nuevamente.',
+                        'correo_destino' => $correo,
+                        'debug_email' => $resultadoCorreo['debug'],
+                        'exception' => $resultadoCorreo['exception'],
+                        'configuracion_revisar' => [
+                            'EMAIL_FROM',
+                            'EMAIL_FROM_NAME',
+                            'email.protocol',
+                            'email.SMTPHost',
+                            'email.SMTPUser',
+                            'email.SMTPPass',
+                            'email.SMTPPort',
+                            'email.SMTPCrypto'
+                        ]
+                    ]);
+                }
+
+                return $this->respondCreated([
+                    'message' => 'Usuario registrado correctamente. Revisa tu correo para el PIN de verificación.',
+                    'data' => [
+                        'id_usuario' => $insertId,
+                        'nombre' => $nombre,
+                        'apellido' => $apellido,
+                        'correo' => $correo,
+                        'username' => $username,
+                        'rol' => $datosInsertar['rol'],
+                        'active' => $datosInsertar['active']
+                    ]
+                ]);
+            }
+
             return $this->respondCreated([
-                'message' => 'Usuario registrado correctamente. Revisa tu correo para el PIN de verificación.',
+                'message' => 'Usuario creado correctamente',
                 'data' => [
                     'id_usuario' => $insertId,
                     'nombre' => $nombre,
@@ -179,20 +273,17 @@ class UsuarioController extends ResourceController
                     'active' => $datosInsertar['active']
                 ]
             ]);
+
+        } catch (\Throwable $e) {
+            log_message('error', 'Error creando usuario: ' . $e->getMessage());
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'message' => 'Error interno al crear el usuario',
+                'error' => $e->getMessage(),
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine()
+            ]);
         }
-    
-        return $this->respondCreated([
-            'message' => 'Usuario creado correctamente',
-            'data' => [
-                'id_usuario' => $insertId,
-                'nombre' => $nombre,
-                'apellido' => $apellido,
-                'correo' => $correo,
-                'username' => $username,
-                'rol' => $datosInsertar['rol'],
-                'active' => $datosInsertar['active']
-            ]
-        ]);
     }
 
     public function verifyPin()
@@ -205,7 +296,7 @@ class UsuarioController extends ResourceController
 
         $data = $json['data'];
 
-        $correo = trim($data['correo'] ?? '');
+        $correo = strtolower(trim($data['correo'] ?? $data['email'] ?? ''));
         $pin = trim($data['pin'] ?? '');
 
         if ($correo === '') {
@@ -242,7 +333,7 @@ class UsuarioController extends ResourceController
 
         $this->model->update($usuario['id_usuario'], [
             'active' => 1,
-            'pin'    => ''
+            'pin' => ''
         ]);
 
         return $this->respond([
@@ -260,11 +351,17 @@ class UsuarioController extends ResourceController
 
         $data = $json['data'];
 
-        $correo = trim($data['correo'] ?? '');
+        $correo = strtolower(trim($data['correo'] ?? $data['email'] ?? ''));
 
         if ($correo === '') {
             return $this->response->setStatusCode(400)->setJSON([
                 'message' => 'El correo es obligatorio'
+            ]);
+        }
+
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El formato del correo no es válido'
             ]);
         }
 
@@ -285,15 +382,11 @@ class UsuarioController extends ResourceController
         $nuevoPin = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
 
         $this->model->update($usuario['id_usuario'], [
-            'pin'    => $nuevoPin,
+            'pin' => $nuevoPin,
             'active' => 0
         ]);
 
-        $email = \Config\Services::email();
-
-        $email->setTo($correo);
-        $email->setSubject('Reenvío de PIN de verificación');
-        $email->setMessage("
+        $mensajeCorreo = "
 Hola {$usuario['username']},
 
 Solicitaste un nuevo PIN de verificación.
@@ -301,40 +394,30 @@ Solicitaste un nuevo PIN de verificación.
 Tu nuevo PIN es: {$nuevoPin}
 
 Ingresa este PIN para activar tu cuenta.
-        ");
+        ";
 
-        try {
-            if (!$email->send()) {
-        
-                $debugEmail = $email->printDebugger([
-                    'headers',
-                    'subject',
-                    'body'
-                ]);
-        
-                log_message('error', 'Error enviando correo de PIN al usuario: ' . $correo);
-                log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
-        
-                $this->model->delete($insertId);
-        
-                return $this->response->setStatusCode(500)->setJSON([
-                    'message' => 'No se pudo enviar el correo con el PIN. Intenta nuevamente.',
-                    'debug' => $debugEmail,
-                    'correo_destino' => $correo
-                ]);
-            }
-        } catch (\Throwable $e) {
-        
-            log_message('error', 'Excepción enviando correo de PIN: ' . $e->getMessage());
-        
-            $this->model->delete($insertId);
-        
+        $resultadoCorreo = $this->enviarCorreo(
+            $correo,
+            'Reenvío de PIN de verificación',
+            $mensajeCorreo
+        );
+
+        if (!$resultadoCorreo['ok']) {
             return $this->response->setStatusCode(500)->setJSON([
-                'message' => 'Ocurrió una excepción al enviar el correo con el PIN.',
-                'error' => $e->getMessage(),
-                'archivo' => $e->getFile(),
-                'linea' => $e->getLine(),
-                'correo_destino' => $correo
+                'message' => 'No se pudo reenviar el PIN. Intenta nuevamente.',
+                'correo_destino' => $correo,
+                'debug_email' => $resultadoCorreo['debug'],
+                'exception' => $resultadoCorreo['exception'],
+                'configuracion_revisar' => [
+                    'EMAIL_FROM',
+                    'EMAIL_FROM_NAME',
+                    'email.protocol',
+                    'email.SMTPHost',
+                    'email.SMTPUser',
+                    'email.SMTPPass',
+                    'email.SMTPPort',
+                    'email.SMTPCrypto'
+                ]
             ]);
         }
 
@@ -343,132 +426,139 @@ Ingresa este PIN para activar tu cuenta.
         ]);
     }
 
-   public function update($id = null)
+    public function update($id = null)
     {
         $json = $this->leerJson();
-    
+
         if (!$json['ok']) {
             return $json['response'];
         }
-    
+
         $data = $json['data'];
-    
+
         $usuario = $this->model->find($id);
-    
+
         if (!$usuario) {
             return $this->failNotFound('Usuario no encontrado');
         }
-    
+
         if (empty($data)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'error' => 'No se recibieron datos para actualizar'
             ]);
         }
-    
+
         $datosActualizar = [];
-    
+
         if (array_key_exists('nombre', $data)) {
             $nombre = trim($data['nombre']);
-    
+
             if ($nombre === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El nombre no puede estar vacío',
-                    'field'   => 'nombre'
+                    'field' => 'nombre'
                 ]);
             }
-    
+
             $datosActualizar['nombre'] = $nombre;
         }
-    
+
         if (array_key_exists('apellido', $data)) {
             $apellido = trim($data['apellido']);
-    
+
             if ($apellido === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El apellido no puede estar vacío',
-                    'field'   => 'apellido'
+                    'field' => 'apellido'
                 ]);
             }
-    
+
             $datosActualizar['apellido'] = $apellido;
         }
-    
-        if (array_key_exists('correo', $data)) {
-            $correo = trim($data['correo']);
-    
+
+        if (array_key_exists('correo', $data) || array_key_exists('email', $data)) {
+            $correo = strtolower(trim($data['correo'] ?? $data['email'] ?? ''));
+
             if ($correo === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El correo no puede estar vacío',
-                    'field'   => 'correo'
+                    'field' => 'correo'
                 ]);
             }
-    
+
+            if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'message' => 'El formato del correo no es válido',
+                    'field' => 'correo'
+                ]);
+            }
+
             $correoExistente = $this->model
                 ->where('correo', $correo)
                 ->where('id_usuario !=', $id)
                 ->first();
-    
+
             if ($correoExistente) {
                 return $this->response->setStatusCode(409)->setJSON([
                     'message' => 'Este correo ya está registrado',
-                    'field'   => 'correo'
+                    'field' => 'correo'
                 ]);
             }
-    
+
             $datosActualizar['correo'] = $correo;
         }
-    
+
         if (array_key_exists('username', $data)) {
             $username = trim($data['username']);
-    
+
             if ($username === '') {
                 return $this->response->setStatusCode(400)->setJSON([
                     'message' => 'El username no puede estar vacío',
-                    'field'   => 'username'
+                    'field' => 'username'
                 ]);
             }
-    
+
             $usernameExistente = $this->model
                 ->where('username', $username)
                 ->where('id_usuario !=', $id)
                 ->first();
-    
+
             if ($usernameExistente) {
                 return $this->response->setStatusCode(409)->setJSON([
                     'message' => 'Este nombre de usuario ya está en uso',
-                    'field'   => 'username'
+                    'field' => 'username'
                 ]);
             }
-    
+
             $datosActualizar['username'] = $username;
         }
-    
+
         if (array_key_exists('contrasena', $data)) {
             if (trim($data['contrasena']) !== '') {
                 $datosActualizar['contrasena'] = password_hash($data['contrasena'], PASSWORD_BCRYPT);
             }
         }
-    
+
         if (array_key_exists('rol', $data)) {
             $datosActualizar['rol'] = $data['rol'];
         }
-    
+
         if (array_key_exists('active', $data)) {
             $datosActualizar['active'] = (int) $data['active'];
         }
-    
+
         if (array_key_exists('pin', $data)) {
             $datosActualizar['pin'] = trim($data['pin']);
         }
-    
+
         if (empty($datosActualizar)) {
             return $this->response->setStatusCode(400)->setJSON([
                 'error' => 'No hay campos válidos para actualizar'
             ]);
         }
-    
+
         $this->model->update($id, $datosActualizar);
-    
+
         return $this->respond([
             'message' => 'Usuario actualizado correctamente',
             'data' => [
@@ -492,7 +582,7 @@ Ingresa este PIN para activar tu cuenta.
         $this->model->delete($id);
 
         return $this->respondDeleted([
-            'message' => 'Usuario eliminado'
+            'message' => 'Usuario eliminado correctamente'
         ]);
     }
 }
