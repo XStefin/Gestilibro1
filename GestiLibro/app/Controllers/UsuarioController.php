@@ -76,6 +76,7 @@ class UsuarioController extends ResourceController
                 'debug' => 'Configuración SMTP incompleta.',
                 'exception' => null,
                 'variables_faltantes' => $variablesFaltantes,
+                'connection_test' => null,
                 'config_email' => [
                     'EMAIL_SMTP_HOST' => $smtpHost ?: null,
                     'EMAIL_SMTP_USER' => $smtpUser ?: null,
@@ -84,6 +85,62 @@ class UsuarioController extends ResourceController
                     'EMAIL_FROM' => $fromEmail ?: null,
                     'EMAIL_FROM_NAME' => $fromName,
                     'EMAIL_SMTP_PASS' => $smtpPass ? 'CONFIGURADA' : 'NO CONFIGURADA'
+                ]
+            ];
+        }
+
+        /*
+         * Prueba de conexión SMTP.
+         * Si connected=false, Railway no logra conectarse al host/puerto.
+         * Si connected=true y el envío falla, el problema suele ser autenticación o clave de aplicación.
+         */
+        $connectionHost = $smtpHost;
+
+        if ($smtpCrypto === 'ssl') {
+            $connectionHost = 'ssl://' . $smtpHost;
+        }
+
+        $errno = 0;
+        $errstr = '';
+
+        $socket = @fsockopen(
+            $connectionHost,
+            (int) $smtpPort,
+            $errno,
+            $errstr,
+            15
+        );
+
+        $connectionTest = [
+            'host' => $connectionHost,
+            'port' => (int) $smtpPort,
+            'crypto' => $smtpCrypto,
+            'connected' => $socket ? true : false,
+            'errno' => $errno,
+            'error' => $errstr
+        ];
+
+        if ($socket) {
+            fclose($socket);
+        }
+
+        if (!$connectionTest['connected']) {
+            log_message('error', 'No se pudo conectar al SMTP: ' . print_r($connectionTest, true));
+
+            return [
+                'ok' => false,
+                'debug' => 'No se pudo abrir conexión con el servidor SMTP.',
+                'exception' => null,
+                'variables_faltantes' => [],
+                'connection_test' => $connectionTest,
+                'config_email' => [
+                    'EMAIL_SMTP_HOST' => $smtpHost,
+                    'EMAIL_SMTP_USER' => $smtpUser,
+                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
+                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
+                    'EMAIL_FROM' => $fromEmail,
+                    'EMAIL_FROM_NAME' => $fromName,
+                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
                 ]
             ];
         }
@@ -100,7 +157,7 @@ class UsuarioController extends ResourceController
             'wordWrap' => true,
             'newline' => "\r\n",
             'CRLF' => "\r\n",
-            'SMTPTimeout' => 20
+            'SMTPTimeout' => 30
         ];
 
         $email->initialize($config);
@@ -115,10 +172,11 @@ class UsuarioController extends ResourceController
                 $debugEmail = $email->printDebugger([
                     'headers',
                     'subject',
-                    'body',
-                    'smtp'
+                    'body'
                 ]);
+
                 log_message('error', 'Error enviando correo a: ' . $correoDestino);
+                log_message('error', 'Connection Test: ' . print_r($connectionTest, true));
                 log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
 
                 return [
@@ -126,6 +184,7 @@ class UsuarioController extends ResourceController
                     'debug' => $debugEmail,
                     'exception' => null,
                     'variables_faltantes' => [],
+                    'connection_test' => $connectionTest,
                     'config_email' => [
                         'EMAIL_SMTP_HOST' => $smtpHost,
                         'EMAIL_SMTP_USER' => $smtpUser,
@@ -143,6 +202,7 @@ class UsuarioController extends ResourceController
                 'debug' => null,
                 'exception' => null,
                 'variables_faltantes' => [],
+                'connection_test' => $connectionTest,
                 'config_email' => [
                     'EMAIL_SMTP_HOST' => $smtpHost,
                     'EMAIL_SMTP_USER' => $smtpUser,
@@ -166,6 +226,7 @@ class UsuarioController extends ResourceController
                     'line' => $e->getLine()
                 ],
                 'variables_faltantes' => [],
+                'connection_test' => $connectionTest,
                 'config_email' => [
                     'EMAIL_SMTP_HOST' => $smtpHost,
                     'EMAIL_SMTP_USER' => $smtpUser,
@@ -322,6 +383,7 @@ Si no realizaste este registro, puedes ignorar este mensaje.
                         'debug_email' => $resultadoCorreo['debug'],
                         'exception' => $resultadoCorreo['exception'],
                         'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
+                        'connection_test' => $resultadoCorreo['connection_test'],
                         'config_email' => $resultadoCorreo['config_email'],
                         'configuracion_revisar' => [
                             'EMAIL_SMTP_HOST',
@@ -505,6 +567,7 @@ Ingresa este PIN para activar tu cuenta.
                 'debug_email' => $resultadoCorreo['debug'],
                 'exception' => $resultadoCorreo['exception'],
                 'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
+                'connection_test' => $resultadoCorreo['connection_test'],
                 'config_email' => $resultadoCorreo['config_email'],
                 'configuracion_revisar' => [
                     'EMAIL_SMTP_HOST',
