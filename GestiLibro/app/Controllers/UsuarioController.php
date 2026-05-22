@@ -115,9 +115,9 @@ class UsuarioController extends ResourceController
                 $debugEmail = $email->printDebugger([
                     'headers',
                     'subject',
-                    'body'
+                    'body',
+                    'smtp'
                 ]);
-
                 log_message('error', 'Error enviando correo a: ' . $correoDestino);
                 log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
 
