@@ -41,12 +41,69 @@ class UsuarioController extends ResourceController
     {
         $email = \Config\Services::email();
 
-        $fromEmail = getenv('EMAIL_FROM')
-            ?: getenv('email.SMTPUser')
-            ?: 'no-reply@gestilibro.com';
+        $smtpHost = getenv('EMAIL_SMTP_HOST') ?: getenv('email.SMTPHost');
+        $smtpUser = getenv('EMAIL_SMTP_USER') ?: getenv('email.SMTPUser');
+        $smtpPass = getenv('EMAIL_SMTP_PASS') ?: getenv('email.SMTPPass');
+        $smtpPort = getenv('EMAIL_SMTP_PORT') ?: getenv('email.SMTPPort') ?: 587;
+        $smtpCrypto = getenv('EMAIL_SMTP_CRYPTO') ?: getenv('email.SMTPCrypto') ?: 'tls';
 
-        $fromName = getenv('EMAIL_FROM_NAME')
-            ?: 'GestiLibro';
+        $fromEmail = getenv('EMAIL_FROM') ?: $smtpUser;
+        $fromName = getenv('EMAIL_FROM_NAME') ?: 'GestiLibro';
+
+        $variablesFaltantes = [];
+
+        if (!$smtpHost) {
+            $variablesFaltantes[] = 'EMAIL_SMTP_HOST';
+        }
+
+        if (!$smtpUser) {
+            $variablesFaltantes[] = 'EMAIL_SMTP_USER';
+        }
+
+        if (!$smtpPass) {
+            $variablesFaltantes[] = 'EMAIL_SMTP_PASS';
+        }
+
+        if (!$fromEmail) {
+            $variablesFaltantes[] = 'EMAIL_FROM';
+        }
+
+        if (!empty($variablesFaltantes)) {
+            log_message('error', 'Configuración SMTP incompleta. Faltan: ' . implode(', ', $variablesFaltantes));
+
+            return [
+                'ok' => false,
+                'debug' => 'Configuración SMTP incompleta.',
+                'exception' => null,
+                'variables_faltantes' => $variablesFaltantes,
+                'config_email' => [
+                    'EMAIL_SMTP_HOST' => $smtpHost ?: null,
+                    'EMAIL_SMTP_USER' => $smtpUser ?: null,
+                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
+                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
+                    'EMAIL_FROM' => $fromEmail ?: null,
+                    'EMAIL_FROM_NAME' => $fromName,
+                    'EMAIL_SMTP_PASS' => $smtpPass ? 'CONFIGURADA' : 'NO CONFIGURADA'
+                ]
+            ];
+        }
+
+        $config = [
+            'protocol' => 'smtp',
+            'SMTPHost' => $smtpHost,
+            'SMTPUser' => $smtpUser,
+            'SMTPPass' => $smtpPass,
+            'SMTPPort' => (int) $smtpPort,
+            'SMTPCrypto' => $smtpCrypto,
+            'mailType' => 'text',
+            'charset' => 'UTF-8',
+            'wordWrap' => true,
+            'newline' => "\r\n",
+            'CRLF' => "\r\n",
+            'SMTPTimeout' => 20
+        ];
+
+        $email->initialize($config);
 
         $email->setFrom($fromEmail, $fromName);
         $email->setTo($correoDestino);
@@ -67,14 +124,34 @@ class UsuarioController extends ResourceController
                 return [
                     'ok' => false,
                     'debug' => $debugEmail,
-                    'exception' => null
+                    'exception' => null,
+                    'variables_faltantes' => [],
+                    'config_email' => [
+                        'EMAIL_SMTP_HOST' => $smtpHost,
+                        'EMAIL_SMTP_USER' => $smtpUser,
+                        'EMAIL_SMTP_PORT' => (int) $smtpPort,
+                        'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
+                        'EMAIL_FROM' => $fromEmail,
+                        'EMAIL_FROM_NAME' => $fromName,
+                        'EMAIL_SMTP_PASS' => 'CONFIGURADA'
+                    ]
                 ];
             }
 
             return [
                 'ok' => true,
                 'debug' => null,
-                'exception' => null
+                'exception' => null,
+                'variables_faltantes' => [],
+                'config_email' => [
+                    'EMAIL_SMTP_HOST' => $smtpHost,
+                    'EMAIL_SMTP_USER' => $smtpUser,
+                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
+                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
+                    'EMAIL_FROM' => $fromEmail,
+                    'EMAIL_FROM_NAME' => $fromName,
+                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
+                ]
             ];
 
         } catch (\Throwable $e) {
@@ -87,6 +164,16 @@ class UsuarioController extends ResourceController
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
                     'line' => $e->getLine()
+                ],
+                'variables_faltantes' => [],
+                'config_email' => [
+                    'EMAIL_SMTP_HOST' => $smtpHost,
+                    'EMAIL_SMTP_USER' => $smtpUser,
+                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
+                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
+                    'EMAIL_FROM' => $fromEmail,
+                    'EMAIL_FROM_NAME' => $fromName,
+                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
                 ]
             ];
         }
@@ -234,15 +321,16 @@ Si no realizaste este registro, puedes ignorar este mensaje.
                         'correo_destino' => $correo,
                         'debug_email' => $resultadoCorreo['debug'],
                         'exception' => $resultadoCorreo['exception'],
+                        'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
+                        'config_email' => $resultadoCorreo['config_email'],
                         'configuracion_revisar' => [
+                            'EMAIL_SMTP_HOST',
+                            'EMAIL_SMTP_USER',
+                            'EMAIL_SMTP_PASS',
+                            'EMAIL_SMTP_PORT',
+                            'EMAIL_SMTP_CRYPTO',
                             'EMAIL_FROM',
-                            'EMAIL_FROM_NAME',
-                            'email.protocol',
-                            'email.SMTPHost',
-                            'email.SMTPUser',
-                            'email.SMTPPass',
-                            'email.SMTPPort',
-                            'email.SMTPCrypto'
+                            'EMAIL_FROM_NAME'
                         ]
                     ]);
                 }
@@ -379,6 +467,9 @@ Si no realizaste este registro, puedes ignorar este mensaje.
             ]);
         }
 
+        $pinAnterior = $usuario['pin'] ?? '';
+        $activeAnterior = (int) ($usuario['active'] ?? 0);
+
         $nuevoPin = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
 
         $this->model->update($usuario['id_usuario'], [
@@ -403,20 +494,26 @@ Ingresa este PIN para activar tu cuenta.
         );
 
         if (!$resultadoCorreo['ok']) {
+            $this->model->update($usuario['id_usuario'], [
+                'pin' => $pinAnterior,
+                'active' => $activeAnterior
+            ]);
+
             return $this->response->setStatusCode(500)->setJSON([
                 'message' => 'No se pudo reenviar el PIN. Intenta nuevamente.',
                 'correo_destino' => $correo,
                 'debug_email' => $resultadoCorreo['debug'],
                 'exception' => $resultadoCorreo['exception'],
+                'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
+                'config_email' => $resultadoCorreo['config_email'],
                 'configuracion_revisar' => [
+                    'EMAIL_SMTP_HOST',
+                    'EMAIL_SMTP_USER',
+                    'EMAIL_SMTP_PASS',
+                    'EMAIL_SMTP_PORT',
+                    'EMAIL_SMTP_CRYPTO',
                     'EMAIL_FROM',
-                    'EMAIL_FROM_NAME',
-                    'email.protocol',
-                    'email.SMTPHost',
-                    'email.SMTPUser',
-                    'email.SMTPPass',
-                    'email.SMTPPort',
-                    'email.SMTPCrypto'
+                    'EMAIL_FROM_NAME'
                 ]
             ]);
         }
