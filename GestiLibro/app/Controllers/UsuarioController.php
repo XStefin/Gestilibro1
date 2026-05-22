@@ -303,10 +303,39 @@ Tu nuevo PIN es: {$nuevoPin}
 Ingresa este PIN para activar tu cuenta.
         ");
 
-        if (!$email->send()) {
-            log_message('error', $email->printDebugger(['headers']));
-
-            return $this->failServerError('No se pudo reenviar el PIN. Intenta nuevamente.');
+        try {
+            if (!$email->send()) {
+        
+                $debugEmail = $email->printDebugger([
+                    'headers',
+                    'subject',
+                    'body'
+                ]);
+        
+                log_message('error', 'Error enviando correo de PIN al usuario: ' . $correo);
+                log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
+        
+                $this->model->delete($insertId);
+        
+                return $this->response->setStatusCode(500)->setJSON([
+                    'message' => 'No se pudo enviar el correo con el PIN. Intenta nuevamente.',
+                    'debug' => $debugEmail,
+                    'correo_destino' => $correo
+                ]);
+            }
+        } catch (\Throwable $e) {
+        
+            log_message('error', 'Excepción enviando correo de PIN: ' . $e->getMessage());
+        
+            $this->model->delete($insertId);
+        
+            return $this->response->setStatusCode(500)->setJSON([
+                'message' => 'Ocurrió una excepción al enviar el correo con el PIN.',
+                'error' => $e->getMessage(),
+                'archivo' => $e->getFile(),
+                'linea' => $e->getLine(),
+                'correo_destino' => $correo
+            ]);
         }
 
         return $this->respond([
