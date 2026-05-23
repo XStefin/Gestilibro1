@@ -37,186 +37,124 @@ class UsuarioController extends ResourceController
         ];
     }
 
-    private function enviarCorreo($correoDestino, $asunto, $mensaje)
+        private function enviarCorreo($correoDestino, $asunto, $mensaje)
     {
-        $email = \Config\Services::email();
-
-        $smtpHost = getenv('EMAIL_SMTP_HOST') ?: getenv('email.SMTPHost');
-        $smtpUser = getenv('EMAIL_SMTP_USER') ?: getenv('email.SMTPUser');
-        $smtpPass = getenv('EMAIL_SMTP_PASS') ?: getenv('email.SMTPPass');
-        $smtpPort = getenv('EMAIL_SMTP_PORT') ?: getenv('email.SMTPPort') ?: 587;
-        $smtpCrypto = getenv('EMAIL_SMTP_CRYPTO') ?: getenv('email.SMTPCrypto') ?: 'tls';
-
-        $fromEmail = getenv('EMAIL_FROM') ?: $smtpUser;
-        $fromName = getenv('EMAIL_FROM_NAME') ?: 'GestiLibro';
-
-        $variablesFaltantes = [];
-
-        if (!$smtpHost) {
-            $variablesFaltantes[] = 'EMAIL_SMTP_HOST';
-        }
-
-        if (!$smtpUser) {
-            $variablesFaltantes[] = 'EMAIL_SMTP_USER';
-        }
-
-        if (!$smtpPass) {
-            $variablesFaltantes[] = 'EMAIL_SMTP_PASS';
-        }
-
-        if (!$fromEmail) {
-            $variablesFaltantes[] = 'EMAIL_FROM';
-        }
-
-        if (!empty($variablesFaltantes)) {
-            log_message('error', 'Configuración SMTP incompleta. Faltan: ' . implode(', ', $variablesFaltantes));
-
+        $apiKey = getenv('RESEND_API_KEY');
+        $fromEmail = getenv('RESEND_FROM_EMAIL') ?: 'GestiLibro <onboarding@resend.dev>';
+    
+        if (!$apiKey) {
             return [
                 'ok' => false,
-                'debug' => 'Configuración SMTP incompleta.',
+                'debug' => 'Falta configurar RESEND_API_KEY.',
                 'exception' => null,
-                'variables_faltantes' => $variablesFaltantes,
+                'variables_faltantes' => ['RESEND_API_KEY'],
                 'connection_test' => null,
                 'config_email' => [
-                    'EMAIL_SMTP_HOST' => $smtpHost ?: null,
-                    'EMAIL_SMTP_USER' => $smtpUser ?: null,
-                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
-                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
-                    'EMAIL_FROM' => $fromEmail ?: null,
-                    'EMAIL_FROM_NAME' => $fromName,
-                    'EMAIL_SMTP_PASS' => $smtpPass ? 'CONFIGURADA' : 'NO CONFIGURADA'
+                    'provider' => 'resend',
+                    'RESEND_API_KEY' => 'NO CONFIGURADA',
+                    'RESEND_FROM_EMAIL' => $fromEmail
                 ]
             ];
         }
-
-        /*
-         * Prueba de conexión SMTP.
-         * Si connected=false, Railway no logra conectarse al host/puerto.
-         * Si connected=true y el envío falla, el problema suele ser autenticación o clave de aplicación.
-         */
-        $connectionHost = $smtpHost;
-
-        if ($smtpCrypto === 'ssl') {
-            $connectionHost = 'ssl://' . $smtpHost;
-        }
-
-        $errno = 0;
-        $errstr = '';
-
-        $socket = @fsockopen(
-            $connectionHost,
-            (int) $smtpPort,
-            $errno,
-            $errstr,
-            15
-        );
-
-        $connectionTest = [
-            'host' => $connectionHost,
-            'port' => (int) $smtpPort,
-            'crypto' => $smtpCrypto,
-            'connected' => $socket ? true : false,
-            'errno' => $errno,
-            'error' => $errstr
+    
+        $htmlMensaje = nl2br(htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8'));
+    
+        $payload = [
+            'from' => $fromEmail,
+            'to' => [$correoDestino],
+            'subject' => $asunto,
+            'html' => "
+                <div style='font-family: Arial, sans-serif; line-height: 1.5; color: #222;'>
+                    {$htmlMensaje}
+                </div>
+            ",
+            'text' => $mensaje
         ];
-
-        if ($socket) {
-            fclose($socket);
-        }
-
-        if (!$connectionTest['connected']) {
-            log_message('error', 'No se pudo conectar al SMTP: ' . print_r($connectionTest, true));
-
-            return [
-                'ok' => false,
-                'debug' => 'No se pudo abrir conexión con el servidor SMTP.',
-                'exception' => null,
-                'variables_faltantes' => [],
-                'connection_test' => $connectionTest,
-                'config_email' => [
-                    'EMAIL_SMTP_HOST' => $smtpHost,
-                    'EMAIL_SMTP_USER' => $smtpUser,
-                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
-                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
-                    'EMAIL_FROM' => $fromEmail,
-                    'EMAIL_FROM_NAME' => $fromName,
-                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
-                ]
-            ];
-        }
-
-        $config = [
-            'protocol' => 'smtp',
-            'SMTPHost' => $smtpHost,
-            'SMTPUser' => $smtpUser,
-            'SMTPPass' => $smtpPass,
-            'SMTPPort' => (int) $smtpPort,
-            'SMTPCrypto' => $smtpCrypto,
-            'mailType' => 'text',
-            'charset' => 'UTF-8',
-            'wordWrap' => true,
-            'newline' => "\r\n",
-            'CRLF' => "\r\n",
-            'SMTPTimeout' => 30
-        ];
-
-        $email->initialize($config);
-
-        $email->setFrom($fromEmail, $fromName);
-        $email->setTo($correoDestino);
-        $email->setSubject($asunto);
-        $email->setMessage($mensaje);
-
+    
         try {
-            if (!$email->send()) {
-                $debugEmail = $email->printDebugger([
-                    'headers',
-                    'subject',
-                    'body'
-                ]);
-
-                log_message('error', 'Error enviando correo a: ' . $correoDestino);
-                log_message('error', 'Connection Test: ' . print_r($connectionTest, true));
-                log_message('error', 'Debug Email: ' . print_r($debugEmail, true));
-
+            $ch = curl_init('https://api.resend.com/emails');
+    
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => [
+                    'Authorization: Bearer ' . $apiKey,
+                    'Content-Type: application/json'
+                ],
+                CURLOPT_POSTFIELDS => json_encode($payload),
+                CURLOPT_TIMEOUT => 30
+            ]);
+    
+            $response = curl_exec($ch);
+            $curlError = curl_error($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    
+            curl_close($ch);
+    
+            if ($response === false) {
                 return [
                     'ok' => false,
-                    'debug' => $debugEmail,
-                    'exception' => null,
+                    'debug' => 'Error cURL al conectar con Resend.',
+                    'exception' => [
+                        'message' => $curlError
+                    ],
                     'variables_faltantes' => [],
-                    'connection_test' => $connectionTest,
+                    'connection_test' => [
+                        'provider' => 'resend',
+                        'connected' => false,
+                        'error' => $curlError
+                    ],
                     'config_email' => [
-                        'EMAIL_SMTP_HOST' => $smtpHost,
-                        'EMAIL_SMTP_USER' => $smtpUser,
-                        'EMAIL_SMTP_PORT' => (int) $smtpPort,
-                        'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
-                        'EMAIL_FROM' => $fromEmail,
-                        'EMAIL_FROM_NAME' => $fromName,
-                        'EMAIL_SMTP_PASS' => 'CONFIGURADA'
+                        'provider' => 'resend',
+                        'RESEND_API_KEY' => 'CONFIGURADA',
+                        'RESEND_FROM_EMAIL' => $fromEmail
                     ]
                 ];
             }
-
+    
+            $decodedResponse = json_decode($response, true);
+    
+            if ($httpCode < 200 || $httpCode >= 300) {
+                log_message('error', 'Error Resend HTTP ' . $httpCode . ': ' . $response);
+    
+                return [
+                    'ok' => false,
+                    'debug' => $decodedResponse ?: $response,
+                    'exception' => null,
+                    'variables_faltantes' => [],
+                    'connection_test' => [
+                        'provider' => 'resend',
+                        'connected' => true,
+                        'http_code' => $httpCode
+                    ],
+                    'config_email' => [
+                        'provider' => 'resend',
+                        'RESEND_API_KEY' => 'CONFIGURADA',
+                        'RESEND_FROM_EMAIL' => $fromEmail
+                    ]
+                ];
+            }
+    
             return [
                 'ok' => true,
-                'debug' => null,
+                'debug' => $decodedResponse,
                 'exception' => null,
                 'variables_faltantes' => [],
-                'connection_test' => $connectionTest,
+                'connection_test' => [
+                    'provider' => 'resend',
+                    'connected' => true,
+                    'http_code' => $httpCode
+                ],
                 'config_email' => [
-                    'EMAIL_SMTP_HOST' => $smtpHost,
-                    'EMAIL_SMTP_USER' => $smtpUser,
-                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
-                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
-                    'EMAIL_FROM' => $fromEmail,
-                    'EMAIL_FROM_NAME' => $fromName,
-                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
+                    'provider' => 'resend',
+                    'RESEND_API_KEY' => 'CONFIGURADA',
+                    'RESEND_FROM_EMAIL' => $fromEmail
                 ]
             ];
-
+    
         } catch (\Throwable $e) {
-            log_message('error', 'Excepción enviando correo a ' . $correoDestino . ': ' . $e->getMessage());
-
+            log_message('error', 'Excepción enviando correo con Resend: ' . $e->getMessage());
+    
             return [
                 'ok' => false,
                 'debug' => null,
@@ -226,15 +164,14 @@ class UsuarioController extends ResourceController
                     'line' => $e->getLine()
                 ],
                 'variables_faltantes' => [],
-                'connection_test' => $connectionTest,
+                'connection_test' => [
+                    'provider' => 'resend',
+                    'connected' => false
+                ],
                 'config_email' => [
-                    'EMAIL_SMTP_HOST' => $smtpHost,
-                    'EMAIL_SMTP_USER' => $smtpUser,
-                    'EMAIL_SMTP_PORT' => (int) $smtpPort,
-                    'EMAIL_SMTP_CRYPTO' => $smtpCrypto,
-                    'EMAIL_FROM' => $fromEmail,
-                    'EMAIL_FROM_NAME' => $fromName,
-                    'EMAIL_SMTP_PASS' => 'CONFIGURADA'
+                    'provider' => 'resend',
+                    'RESEND_API_KEY' => 'CONFIGURADA',
+                    'RESEND_FROM_EMAIL' => $fromEmail
                 ]
             ];
         }
