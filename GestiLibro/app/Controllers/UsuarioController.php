@@ -268,7 +268,7 @@ class UsuarioController extends ResourceController
         $esRegistro = isset($data['esRegistro']) ? (bool) $data['esRegistro'] : false;
 
         $pin = $esRegistro
-            ? str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT)
+            ? str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT)
             : trim($data['pin'] ?? '');
 
         $datosInsertar = [
@@ -469,7 +469,7 @@ Si no realizaste este registro, puedes ignorar este mensaje.
         $pinAnterior = $usuario['pin'] ?? '';
         $activeAnterior = (int) ($usuario['active'] ?? 0);
 
-        $nuevoPin = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $nuevoPin = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
 
         $this->model->update($usuario['id_usuario'], [
             'pin' => $nuevoPin,
