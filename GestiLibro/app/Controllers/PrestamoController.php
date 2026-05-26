@@ -68,60 +68,88 @@ class PrestamoController extends ResourceController
     }
 
     public function index()
-    {
-        $idUsuario = $this->request->getGet('usuario');
+{
+    $idUsuario = $this->request->getGet('id_usuario') 
+        ?: $this->request->getGet('usuario');
 
-        $db = \Config\Database::connect();
+    $rol = strtolower(trim($this->request->getGet('rol') ?? ''));
 
-        $builder = $db->table('Prestamo p');
-        $builder->select('
-            p.id_prestamo,
-            p.id_usuario,
-            p.id_libro,
-            p.fecha_prestamo,
-            p.fecha_devolucion,
-            p.estado,
-            u.nombre as nombre_usuario,
-            u.apellido,
-            l.titulo as titulo_libro
-        ');
-        $builder->join('Usuario u', 'u.id_usuario = p.id_usuario');
-        $builder->join('Libro l', 'l.id_libro = p.id_libro');
+    $db = \Config\Database::connect();
 
-        if (!empty($idUsuario)) {
-            $builder->where('p.id_usuario', $idUsuario);
+    $builder = $db->table('Prestamo p');
+    $builder->select('
+        p.id_prestamo,
+        p.id_usuario,
+        p.id_libro,
+        p.fecha_prestamo,
+        p.fecha_devolucion,
+        p.estado,
+        u.nombre as nombre_usuario,
+        u.apellido,
+        l.titulo as titulo_libro
+    ');
+    $builder->join('Usuario u', 'u.id_usuario = p.id_usuario');
+    $builder->join('Libro l', 'l.id_libro = p.id_libro');
+    if ($rol === 'estudiante') {
+        if (empty($idUsuario)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El id_usuario es obligatorio para consultar préstamos como estudiante'
+            ]);
         }
 
-        return $this->respond($builder->get()->getResultArray());
+        $builder->where('p.id_usuario', (int) $idUsuario);
     }
+    if ($rol !== 'estudiante' && !empty($idUsuario)) {
+        $builder->where('p.id_usuario', (int) $idUsuario);
+    }
+
+    $prestamos = $builder->get()->getResultArray();
+
+    return $this->respond($prestamos);
+}
 
     public function show($id = null)
     {
-        $db = \Config\Database::connect();
+    $idUsuario = $this->request->getGet('id_usuario') 
+        ?: $this->request->getGet('usuario');
 
-        $builder = $db->table('Prestamo p');
-        $builder->select('
-            p.id_prestamo,
-            p.id_usuario,
-            p.id_libro,
-            p.fecha_prestamo,
-            p.fecha_devolucion,
-            p.estado,
-            u.nombre as nombre_usuario,
-            u.apellido,
-            l.titulo as titulo_libro
-        ');
-        $builder->join('Usuario u', 'u.id_usuario = p.id_usuario');
-        $builder->join('Libro l', 'l.id_libro = p.id_libro');
-        $builder->where('p.id_prestamo', $id);
+    $rol = strtolower(trim($this->request->getGet('rol') ?? ''));
 
-        $prestamo = $builder->get()->getRowArray();
+    $db = \Config\Database::connect();
 
-        if (!$prestamo) {
-            return $this->failNotFound('Préstamo no encontrado');
+    $builder = $db->table('Prestamo p');
+    $builder->select('
+        p.id_prestamo,
+        p.id_usuario,
+        p.id_libro,
+        p.fecha_prestamo,
+        p.fecha_devolucion,
+        p.estado,
+        u.nombre as nombre_usuario,
+        u.apellido,
+        l.titulo as titulo_libro
+    ');
+    $builder->join('Usuario u', 'u.id_usuario = p.id_usuario');
+    $builder->join('Libro l', 'l.id_libro = p.id_libro');
+    $builder->where('p.id_prestamo', $id);
+
+    if ($rol === 'estudiante') {
+        if (empty($idUsuario)) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'message' => 'El id_usuario es obligatorio para consultar préstamos como estudiante'
+            ]);
         }
 
-        return $this->respond($prestamo);
+        $builder->where('p.id_usuario', (int) $idUsuario);
+    }
+
+    $prestamo = $builder->get()->getRowArray();
+
+    if (!$prestamo) {
+        return $this->failNotFound('Préstamo no encontrado');
+    }
+
+    return $this->respond($prestamo);
     }
 
     public function create()
