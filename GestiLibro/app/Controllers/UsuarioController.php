@@ -37,11 +37,11 @@ class UsuarioController extends ResourceController
         ];
     }
 
-        private function enviarCorreo($correoDestino, $asunto, $mensaje)
+    private function enviarCorreo($correoDestino, $asunto, $mensaje)
     {
         $apiKey = getenv('RESEND_API_KEY');
         $fromEmail = getenv('RESEND_FROM_EMAIL') ?: 'GestiLibro <onboarding@resend.dev>';
-    
+
         if (!$apiKey) {
             return [
                 'ok' => false,
@@ -56,9 +56,9 @@ class UsuarioController extends ResourceController
                 ]
             ];
         }
-    
+
         $htmlMensaje = nl2br(htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8'));
-    
+
         $payload = [
             'from' => $fromEmail,
             'to' => [$correoDestino],
@@ -70,10 +70,10 @@ class UsuarioController extends ResourceController
             ",
             'text' => $mensaje
         ];
-    
+
         try {
             $ch = curl_init('https://api.resend.com/emails');
-    
+
             curl_setopt_array($ch, [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_POST => true,
@@ -84,13 +84,13 @@ class UsuarioController extends ResourceController
                 CURLOPT_POSTFIELDS => json_encode($payload),
                 CURLOPT_TIMEOUT => 30
             ]);
-    
+
             $response = curl_exec($ch);
             $curlError = curl_error($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
+
             curl_close($ch);
-    
+
             if ($response === false) {
                 return [
                     'ok' => false,
@@ -111,12 +111,12 @@ class UsuarioController extends ResourceController
                     ]
                 ];
             }
-    
+
             $decodedResponse = json_decode($response, true);
-    
+
             if ($httpCode < 200 || $httpCode >= 300) {
                 log_message('error', 'Error Resend HTTP ' . $httpCode . ': ' . $response);
-    
+
                 return [
                     'ok' => false,
                     'debug' => $decodedResponse ?: $response,
@@ -134,7 +134,7 @@ class UsuarioController extends ResourceController
                     ]
                 ];
             }
-    
+
             return [
                 'ok' => true,
                 'debug' => $decodedResponse,
@@ -151,10 +151,10 @@ class UsuarioController extends ResourceController
                     'RESEND_FROM_EMAIL' => $fromEmail
                 ]
             ];
-    
+
         } catch (\Throwable $e) {
             log_message('error', 'Excepción enviando correo con Resend: ' . $e->getMessage());
-    
+
             return [
                 'ok' => false,
                 'debug' => null,
@@ -175,6 +175,66 @@ class UsuarioController extends ResourceController
                 ]
             ];
         }
+    }
+
+    private function reenviarPinUsuario(array $usuario, string $correo)
+    {
+        $pinAnterior = $usuario['pin'] ?? '';
+        $activeAnterior = (int) ($usuario['active'] ?? 0);
+
+        $nuevoPin = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $this->model->update($usuario['id_usuario'], [
+            'pin' => $nuevoPin,
+            'active' => 0
+        ]);
+
+        $nombreUsuario = $usuario['nombre'] ?? $usuario['username'] ?? 'Usuario';
+
+        $mensajeCorreo = "
+Hola {$nombreUsuario},
+
+Ya existe una cuenta registrada con este correo, pero aún no ha sido verificada.
+
+Tu nuevo PIN de verificación es: {$nuevoPin}
+
+Ingresa este PIN para activar tu cuenta.
+        ";
+
+        $resultadoCorreo = $this->enviarCorreo(
+            $correo,
+            'Reenvío de PIN de verificación',
+            $mensajeCorreo
+        );
+
+        if (!$resultadoCorreo['ok']) {
+            $this->model->update($usuario['id_usuario'], [
+                'pin' => $pinAnterior,
+                'active' => $activeAnterior
+            ]);
+
+            return [
+                'ok' => false,
+                'response' => $this->response->setStatusCode(500)->setJSON([
+                    'message' => 'El correo ya está registrado, pero no se pudo reenviar el PIN. Intenta nuevamente.',
+                    'correo_destino' => $correo,
+                    'debug_email' => $resultadoCorreo['debug'] ?? null,
+                    'exception' => $resultadoCorreo['exception'] ?? null,
+                    'variables_faltantes' => $resultadoCorreo['variables_faltantes'] ?? [],
+                    'connection_test' => $resultadoCorreo['connection_test'] ?? null,
+                    'config_email' => $resultadoCorreo['config_email'] ?? null
+                ])
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'response' => $this->response->setStatusCode(200)->setJSON([
+                'message' => 'Este correo ya estaba registrado, pero la cuenta no estaba activa. Se reenvió un nuevo PIN de verificación.',
+                'requiresVerification' => true,
+                'correo' => $correo
+            ])
+        ];
     }
 
     public function index()
@@ -251,7 +311,14 @@ class UsuarioController extends ResourceController
             ]);
         }
 
-        if ($this->model->where('correo', $correo)->first()) {
+        $usuarioExistente = $this->model->where('correo', $correo)->first();
+
+        if ($usuarioExistente) {
+            if ((int) ($usuarioExistente['active'] ?? 0) === 0) {
+                $resultadoReenvio = $this->reenviarPinUsuario($usuarioExistente, $correo);
+                return $resultadoReenvio['response'];
+            }
+
             return $this->response->setStatusCode(409)->setJSON([
                 'message' => 'Este correo ya está registrado',
                 'field' => 'correo'
@@ -268,7 +335,7 @@ class UsuarioController extends ResourceController
         $esRegistro = isset($data['esRegistro']) ? (bool) $data['esRegistro'] : false;
 
         $pin = $esRegistro
-            ? str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT)
+            ? str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT)
             : trim($data['pin'] ?? '');
 
         $datosInsertar = [
@@ -317,20 +384,11 @@ Si no realizaste este registro, puedes ignorar este mensaje.
                     return $this->response->setStatusCode(500)->setJSON([
                         'message' => 'No se pudo enviar el correo con el PIN. Intenta nuevamente.',
                         'correo_destino' => $correo,
-                        'debug_email' => $resultadoCorreo['debug'],
-                        'exception' => $resultadoCorreo['exception'],
-                        'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
-                        'connection_test' => $resultadoCorreo['connection_test'],
-                        'config_email' => $resultadoCorreo['config_email'],
-                        'configuracion_revisar' => [
-                            'EMAIL_SMTP_HOST',
-                            'EMAIL_SMTP_USER',
-                            'EMAIL_SMTP_PASS',
-                            'EMAIL_SMTP_PORT',
-                            'EMAIL_SMTP_CRYPTO',
-                            'EMAIL_FROM',
-                            'EMAIL_FROM_NAME'
-                        ]
+                        'debug_email' => $resultadoCorreo['debug'] ?? null,
+                        'exception' => $resultadoCorreo['exception'] ?? null,
+                        'variables_faltantes' => $resultadoCorreo['variables_faltantes'] ?? [],
+                        'connection_test' => $resultadoCorreo['connection_test'] ?? null,
+                        'config_email' => $resultadoCorreo['config_email'] ?? null
                     ]);
                 }
 
@@ -466,61 +524,8 @@ Si no realizaste este registro, puedes ignorar este mensaje.
             ]);
         }
 
-        $pinAnterior = $usuario['pin'] ?? '';
-        $activeAnterior = (int) ($usuario['active'] ?? 0);
-
-        $nuevoPin = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
-
-        $this->model->update($usuario['id_usuario'], [
-            'pin' => $nuevoPin,
-            'active' => 0
-        ]);
-
-        $mensajeCorreo = "
-Hola {$usuario['username']},
-
-Solicitaste un nuevo PIN de verificación.
-
-Tu nuevo PIN es: {$nuevoPin}
-
-Ingresa este PIN para activar tu cuenta.
-        ";
-
-        $resultadoCorreo = $this->enviarCorreo(
-            $correo,
-            'Reenvío de PIN de verificación',
-            $mensajeCorreo
-        );
-
-        if (!$resultadoCorreo['ok']) {
-            $this->model->update($usuario['id_usuario'], [
-                'pin' => $pinAnterior,
-                'active' => $activeAnterior
-            ]);
-
-            return $this->response->setStatusCode(500)->setJSON([
-                'message' => 'No se pudo reenviar el PIN. Intenta nuevamente.',
-                'correo_destino' => $correo,
-                'debug_email' => $resultadoCorreo['debug'],
-                'exception' => $resultadoCorreo['exception'],
-                'variables_faltantes' => $resultadoCorreo['variables_faltantes'],
-                'connection_test' => $resultadoCorreo['connection_test'],
-                'config_email' => $resultadoCorreo['config_email'],
-                'configuracion_revisar' => [
-                    'EMAIL_SMTP_HOST',
-                    'EMAIL_SMTP_USER',
-                    'EMAIL_SMTP_PASS',
-                    'EMAIL_SMTP_PORT',
-                    'EMAIL_SMTP_CRYPTO',
-                    'EMAIL_FROM',
-                    'EMAIL_FROM_NAME'
-                ]
-            ]);
-        }
-
-        return $this->respond([
-            'message' => 'Código reenviado correctamente'
-        ]);
+        $resultadoReenvio = $this->reenviarPinUsuario($usuario, $correo);
+        return $resultadoReenvio['response'];
     }
 
     public function update($id = null)
